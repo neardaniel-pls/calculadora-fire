@@ -97,9 +97,9 @@ let depositoEmEdicao = null;
 // -- EDITAR DESPESAS VARIÁVEIS --
 let despesaEmEdicao = null; 
 
-// Variáveis globais para os gráficos
-let chartEvolucaoPatrimonial;
-let chartDespesasVariaveis;
+// ------------------------------ GRÁFICOS ----------------------------------
+let chartEvolucaoPatrimonial = null;
+let chartDespesasVariaveis   = null;
 
 // Inicialização da aplicação
 document.addEventListener('DOMContentLoaded', function() {
