@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora FIRE - Independência Financeira</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>Calculadora FIRE</h1>
+            <p>Independência Financeira, Aposentadoria Antecipada</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="card section">
+            <div class="card__header">
+                <h2>Dados Básicos</h2>
+            </div>
+            <div class="card__body">
+                <form id="formDadosBasicos">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="taxaRetirada" class="form-label">Taxa de Retirada Segura (%)</label>
+                            <div class="slider-container">
+                                <input type="range" id="taxaRetirada" name="taxaRetirada" min="2" max="6" step="0.1" value="4" class="slider">
+                                <span id="taxaRetiradaValue">4%</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inflacaoAnual" class="form-label">Inflação Anual Estimada (%)</label>
+                            <input type="number" id="inflacaoAnual" name="inflacaoAnual" value="2" min="0" max="10" step="0.1" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="idadeAtual" class="form-label">Idade Atual</label>
+                            <input type="number" id="idadeAtual" name="idadeAtual" value="30" min="18" max="90" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="rendimentoAnual" class="form-label">Rendimento Anual (€)</label>
+                            <input type="number" id="rendimentoAnual" name="rendimentoAnual" value="36000" min="0" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="despesasAnuais" class="form-label">Despesas Anuais (€)</label>
+                            <input type="number" id="despesasAnuais" name="despesasAnuais" value="24000" min="0" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="valorInvestido" class="form-label">Valor Já Investido (€)</label>
+                            <input type="number" id="valorInvestido" name="valorInvestido" value="50000" min="0" class="form-control">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section class="card section">
+            <div class="card__header">
+                <h2>Depósitos Diversificados</h2>
+            </div>
+            <div class="card__body">
+                <div class="table-responsive">
+                    <table class="table" id="tabelaDepositos">
+                        <thead>
+                            <tr>
+                                <th>Tipo Investimento</th>
+                                <th>Valor Mensal (€)</th>
+                                <th>Taxa Esperada (%)</th>
+                                <th>Data Início</th>
+                                <th>Data Fim</th>
+                                <th>Descrição</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Os depósitos serão adicionados aqui -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="form-row mt-16">
+                    <button type="button" id="btnAdicionarDeposito" class="btn btn--primary">Adicionar Depósito</button>
+                    <div class="taxa-info">
+                        <span>Taxa de Retorno Ponderada: </span>
+                        <strong id="taxaRetornoPonderada">0%</strong>
+                    </div>
+                </div>
+                <div id="formNovoDeposito" class="form-popup hidden">
+                    <form>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="tipoInvestimento" class="form-label">Tipo de Investimento</label>
+                                <input type="text" id="tipoInvestimento" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="valorMensal" class="form-label">Valor Mensal (€)</label>
+                                <input type="number" id="valorMensal" min="0" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="taxaEsperada" class="form-label">Taxa Esperada (%)</label>
+                                <input type="number" id="taxaEsperada" min="0" max="20" step="0.1" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="dataInicio" class="form-label">Data Início</label>
+                                <input type="date" id="dataInicio" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="dataFim" class="form-label">Data Fim</label>
+                                <input type="date" id="dataFim" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="descricaoInvestimento" class="form-label">Descrição</label>
+                                <input type="text" id="descricaoInvestimento" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="btnSalvarDeposito" class="btn btn--primary">Salvar</button>
+                            <button type="button" id="btnCancelarDeposito" class="btn btn--secondary">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <div class="columns">
+            <section class="card section">
+                <div class="card__header">
+                    <h2>Eventos Financeiros Únicos</h2>
+                </div>
+                <div class="card__body">
+                    <div class="table-responsive">
+                        <table class="table" id="tabelaEventosUnicos">
+                            <thead>
+                                <tr>
+                                    <th>Ano</th>
+                                    <th>Tipo</th>
+                                    <th>Valor (€)</th>
+                                    <th>Descrição</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Os eventos únicos serão adicionados aqui -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <button type="button" id="btnAdicionarEventoUnico" class="btn btn--primary mt-16">Adicionar Evento</button>
+
+                    <div id="formNovoEventoUnico" class="form-popup hidden">
+                        <form>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="anoEvento" class="form-label">Ano</label>
+                                    <input type="number" id="anoEvento" min="2023" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tipoEvento" class="form-label">Tipo</label>
+                                    <select id="tipoEvento" class="form-control">
+                                        <option value="Depósito">Depósito</option>
+                                        <option value="Levantamento">Levantamento</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="valorEvento" class="form-label">Valor (€)</label>
+                                    <input type="number" id="valorEvento" min="0" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="descricaoEvento" class="form-label">Descrição</label>
+                                    <input type="text" id="descricaoEvento" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" id="btnSalvarEventoUnico" class="btn btn--primary">Salvar</button>
+                                <button type="button" id="btnCancelarEventoUnico" class="btn btn--secondary">Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card section">
+                <div class="card__header">
+                    <h2>Eventos Financeiros Recorrentes</h2>
+                </div>
+                <div class="card__body">
+                    <div class="table-responsive">
+                        <table class="table" id="tabelaEventosRecorrentes">
+                            <thead>
+                                <tr>
+                                    <th>Ano Início-Fim</th>
+                                    <th>Tipo</th>
+                                    <th>Periodicidade</th>
+                                    <th>Valor/Período (€)</th>
+                                    <th>Descrição</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Os eventos recorrentes serão adicionados aqui -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <button type="button" id="btnAdicionarEventoRecorrente" class="btn btn--primary mt-16">Adicionar Evento</button>
+
+                    <div id="formNovoEventoRecorrente" class="form-popup hidden">
+                        <form>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="anoInicioEvento" class="form-label">Ano Início</label>
+                                    <input type="number" id="anoInicioEvento" min="2023" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="anoFimEvento" class="form-label">Ano Fim</label>
+                                    <input type="number" id="anoFimEvento" min="2023" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="tipoEventoRecorrente" class="form-label">Tipo</label>
+                                    <select id="tipoEventoRecorrente" class="form-control">
+                                        <option value="Depósito" selected>Depósito</option>
+                                        <option value="Levantamento">Levantamento</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="periodicidadeEvento" class="form-label">Periodicidade</label>
+                                    <select id="periodicidadeEvento" class="form-control">
+                                        <option value="Mensal">Mensal</option>
+                                        <option value="Trimestral">Trimestral</option>
+                                        <option value="Semestral">Semestral</option>
+                                        <option value="Anual">Anual</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="valorPeriodoEvento" class="form-label">Valor/Período (€)</label>
+                                    <input type="number" id="valorPeriodoEvento" min="0" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="descricaoEventoRecorrente" class="form-label">Descrição</label>
+                                <input type="text" id="descricaoEventoRecorrente" class="form-control">
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" id="btnSalvarEventoRecorrente" class="btn btn--primary">Salvar</button>
+                                <button type="button" id="btnCancelarEventoRecorrente" class="btn btn--secondary">Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <section class="card section">
+            <div class="card__header">
+                <h2>Despesas Variáveis</h2>
+            </div>
+            <div class="card__body">
+                <div class="table-responsive">
+                    <table class="table" id="tabelaDespesasVariaveis">
+                        <thead>
+                            <tr>
+                                <th>Descrição</th>
+                                <th>Valor Mensal (€)</th>
+                                <th>Ano Início</th>
+                                <th>Ano Fim</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- As despesas variáveis serão adicionadas aqui -->
+                        </tbody>
+                    </table>
+                </div>
+                <button type="button" id="btnAdicionarDespesa" class="btn btn--primary mt-16">Adicionar Despesa</button>
+
+                <div id="formNovaDespesa" class="form-popup hidden">
+                    <form>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="descricaoDespesa" class="form-label">Descrição</label>
+                                <input type="text" id="descricaoDespesa" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="valorMensalDespesa" class="form-label">Valor Mensal (€)</label>
+                                <input type="number" id="valorMensalDespesa" min="0" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="anoInicioDespesa" class="form-label">Ano Início</label>
+                                <input type="number" id="anoInicioDespesa" min="2023" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="anoFimDespesa" class="form-label">Ano Fim</label>
+                                <input type="number" id="anoFimDespesa" min="2023" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="btnSalvarDespesa" class="btn btn--primary">Salvar</button>
+                            <button type="button" id="btnCancelarDespesa" class="btn btn--secondary">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section class="card section">
+            <div class="card__header">
+                <h2>Resultados</h2>
+            </div>
+            <div class="card__body">
+                <div class="resultados-grid">
+                    <div class="resultado-item">
+                        <div class="resultado-label">Valor FIRE Necessário</div>
+                        <div class="resultado-value" id="valorFIRE">€0</div>
+                    </div>
+                    <div class="resultado-item">
+                        <div class="resultado-label">Idade FIRE</div>
+                        <div class="resultado-value" id="idadeFIRE">0</div>
+                    </div>
+                    <div class="resultado-item">
+                        <div class="resultado-label">Taxa Retorno Efetiva Nominal</div>
+                        <div class="resultado-value" id="taxaRetornoNominal">0%</div>
+                    </div>
+                    <div class="resultado-item">
+                        <div class="resultado-label">Taxa Retorno Efetiva Real</div>
+                        <div class="resultado-value" id="taxaRetornoReal">0%</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="charts-container">
+            <section class="card section">
+                <div class="card__header">
+                    <h2>Evolução Patrimonial</h2>
+                </div>
+                <div class="card__body">
+                    <div class="chart-container">
+                        <canvas id="chartEvolucaoPatrimonial"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card section">
+                <div class="card__header">
+                    <h2>Evolução das Despesas</h2>
+                </div>
+                <div class="card__body">
+                    <!-- Contentor com altura fixa para resolver o problema do gráfico -->
+                    <div class="chart-container" style="height: 400px; width: 100%;">
+                        <canvas id="chartDespesasVariaveis"></canvas>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="actions-container">
+            <button type="button" id="btnCalcular" class="btn btn--primary btn--lg">Calcular</button>
+            <button type="button" id="btnDownloadPDF" class="btn btn--secondary btn--lg">Baixar Relatório PDF</button>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© 2025 Calculadora FIRE - Independência Financeira, Aposentadoria Antecipada</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
