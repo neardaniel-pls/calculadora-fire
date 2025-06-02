@@ -5,15 +5,15 @@ let dadosApp = {
         inflacaoAnual: 2,
         idadeAtual: 29,
         rendimentoAnual: 40000,
-        despesasAnuais: 24000,
+        despesasAnuais: 14400,
         valorInvestido: 20000
     },
     depositosDiversificados: [
         {
             id: 1,
             tipo: "ETF Global",
-            valorMensal: 4000,
-            taxaEsperada: 7,
+            valorMensal: 400,
+            taxaEsperada: 8,
             dataInicio: "2025-01-01",
             dataFim: "2055-01-01",
             descricao: "VWCE"
@@ -576,6 +576,26 @@ const PERIODOS_POR_ANO = {
     Anual: 1
 };
 
+// — Despesas Variáveis —
+function fluxoVariavelAnual(ano) {
+    const variaveis = dadosApp.despesasVariaveis ?? [];
+    return variaveis.reduce((tot, d) => {
+        const ativo = ano >= d.anoInicio && ano <= d.anoFim;
+        return tot + (ativo ? -d.valorMensal * 12 : 0);   // sempre saída (−)
+    }, 0);
+}
+
+// — Eventos Únicos —
+function fluxoUnicoAnual(ano) {
+    const unicos = (dadosApp.eventosFinanceiros?.unicos) ?? [];
+    return unicos.reduce((tot, ev) => {
+        if (ev.ano !== ano) return tot;          // só entra no ano certo
+        const sinal = ev.tipo === 'Levantamento' ? -1 : 1;
+        return tot + sinal * ev.valor;           // Depósito + | Levantamento −
+    }, 0);
+}
+
+
 function fluxoRecorrenteAnual(ano) {
     // Percorre todos os eventos recorrentes e soma os que caem neste ano
     return dadosApp.eventosFinanceiros.recorrentes.reduce((total, ev) => {
@@ -629,7 +649,16 @@ function calcularResultados() {
     // Contribuições e capital de partida
     const capitalInicial     = dadosBasicos.valorInvestido;
     const contribuicaoMensal = totalValor;
-    const contribuicaoAnual  = contribuicaoMensal * 12;
+
+    // Contribuições para investimento programadas
+    const contribuicaoAnual = dadosApp.depositosDiversificados
+        .reduce((acc, dep) => acc + dep.valorMensal * 12, 0);
+
+    // ---------- NOVO: saldo de rendimentos menos despesas fixas ----------
+    const fluxoBasicoAnual = (dadosBasicos.rendimentoAnual || 0) -
+                            (dadosBasicos.despesasAnuais  || 0) -
+                            contribuicaoAnual;          // já contámos as contribuições acima
+    // ---------------------------------------------------------------------
 
     // ------------- 2. Simulação ano-a-ano -------------
     let anosParaFIRE = 0;
@@ -637,20 +666,33 @@ function calcularResultados() {
 
     // Usa o ano definido na app; se faltar, assume o ano civil corrente
     const anoBase = dadosApp.anoInicial || new Date().getFullYear();
+    
+    const ANO_MAXIMO = 120;               // segurança: ninguém vive 120 anos 😄
 
-    while (valorAtual < valorFIRE && anosParaFIRE < 50) {
-        const anoCorrente      = anoBase + anosParaFIRE;
-        const fluxoRecorrente  = fluxoRecorrenteAnual(anoCorrente);
+    while (valorAtual < valorFIRE && anosParaFIRE < ANO_MAXIMO) {
+        const anoCorrente     = anoBase + anosParaFIRE;
 
-        // Crescimento do capital + contribuições fixas + fluxo recorrente líquido
+        const fluxoRecorrente = fluxoRecorrenteAnual(anoCorrente);
+        const fluxoVariavel   = fluxoVariavelAnual(anoCorrente);
+        const fluxoUnico      = fluxoUnicoAnual(anoCorrente);
+
         valorAtual = valorAtual * (1 + taxaRetornoNominal / 100) +
-                     contribuicaoAnual +
-                     fluxoRecorrente;
+                    // aportes e fluxos de caixa
+                    contribuicaoAnual +
+                    fluxoBasicoAnual +
+                    fluxoRecorrente +
+                    fluxoVariavel +
+                    fluxoUnico;
 
         anosParaFIRE++;
     }
 
-    const idadeFIRE = dadosBasicos.idadeAtual + anosParaFIRE;
+    const atingiuFIRE = valorAtual >= valorFIRE;
+    const idadeFIRE = atingiuFIRE
+        ? dadosBasicos.idadeAtual + anosParaFIRE
+        : '—';                            // ou 'Não atinge'
+    document.getElementById('idadeFIRE').textContent = idadeFIRE;
+
 
     // ------------- 3. Interface -------------
     document.getElementById('valorFIRE').textContent         = `€${valorFIRE.toLocaleString()}`;
