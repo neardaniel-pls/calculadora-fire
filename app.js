@@ -636,6 +636,13 @@ function calcularResultados() {
     const dadosBasicos   = dadosApp.dadosBasicos;
     const valorFIRE      = dadosBasicos.despesasAnuais / (dadosBasicos.taxaRetirada / 100);
 
+    // cresce com a inflação até ao ano em análise
+    function alvoFIRE(anosDecorridos) {
+        const despesaInfla = dadosBasicos.despesasAnuais *
+                            Math.pow(1 + dadosBasicos.inflacaoAnual/100, anosDecorridos);
+        return despesaInfla / (dadosBasicos.taxaRetirada/100);
+    }
+
     // Taxa de retorno ponderada sobre os depósitos diversificados
     let totalValor = 0;
     let somaValorada = 0;
@@ -669,9 +676,8 @@ function calcularResultados() {
     
     const ANO_MAXIMO = 120;               // segurança: ninguém vive 120 anos 😄
 
-    while (valorAtual < valorFIRE && anosParaFIRE < ANO_MAXIMO) {
+    while (valorAtual < alvoFIRE(anosParaFIRE) && anosParaFIRE < ANO_MAXIMO) {
         const anoCorrente     = anoBase + anosParaFIRE;
-
         const fluxoRecorrente = fluxoRecorrenteAnual(anoCorrente);
         const fluxoVariavel   = fluxoVariavelAnual(anoCorrente);
         const fluxoUnico      = fluxoUnicoAnual(anoCorrente);
