@@ -97,9 +97,15 @@ let depositoEmEdicao = null;
 // -- EDITAR DESPESAS VARIÁVEIS --
 let despesaEmEdicao = null; 
 
-// Variáveis globais para os gráficos
-let chartEvolucaoPatrimonial;
-let chartDespesasVariaveis;
+// -- EDITAR EVENTOS ÚNICOS --
+let eventoUnicoEmEdicao = null;
+
+// -- EDITAR EVENTOS RECORRENTES --
+let eventoRecorrenteEmEdicao = null;
+
+// ------------------------------ GRÁFICOS ----------------------------------
+let chartEvolucaoPatrimonial = null;
+let chartDespesasVariaveis   = null;
 
 // Inicialização da aplicação
 document.addEventListener('DOMContentLoaded', function() {
@@ -306,25 +312,55 @@ function limparFormEventoUnico() {
     document.getElementById('tipoEvento').value = 'Depósito';
     document.getElementById('valorEvento').value = '';
     document.getElementById('descricaoEvento').value = '';
+    eventoUnicoEmEdicao = null;
+    document.getElementById('btnSalvarEventoUnico').textContent = 'Salvar';
 }
 
 function salvarEventoUnico() {
-    const novoEvento = {
-        id: Date.now(),
-        ano: parseInt(document.getElementById('anoEvento').value),
-        tipo: document.getElementById('tipoEvento').value,
-        valor: parseFloat(document.getElementById('valorEvento').value),
-        descricao: document.getElementById('descricaoEvento').value
-    };
-    
-    dadosApp.eventosFinanceiros.unicos.push(novoEvento);
+    if (eventoUnicoEmEdicao !== null) {
+        // — ACTUALIZAR —
+        const ev = dadosApp.eventosFinanceiros.unicos.find(e => e.id === eventoUnicoEmEdicao);
+        if (ev) {
+            ev.ano       = parseInt(document.getElementById('anoEvento').value);
+            ev.tipo      = document.getElementById('tipoEvento').value;
+            ev.valor     = parseFloat(document.getElementById('valorEvento').value);
+            ev.descricao = document.getElementById('descricaoEvento').value;
+        }
+    } else {
+        // — NOVO —
+        const novoEvento = {
+            id: Date.now(),
+            ano: parseInt(document.getElementById('anoEvento').value),
+            tipo: document.getElementById('tipoEvento').value,
+            valor: parseFloat(document.getElementById('valorEvento').value),
+            descricao: document.getElementById('descricaoEvento').value
+        };
+        dadosApp.eventosFinanceiros.unicos.push(novoEvento);
+    }
+
     atualizarTabelaEventosUnicos();
     esconderFormEventoUnico();
+    eventoUnicoEmEdicao = null;
+    document.getElementById('btnSalvarEventoUnico').textContent = 'Salvar';
 }
 
 function removerEventoUnico(id) {
     dadosApp.eventosFinanceiros.unicos = dadosApp.eventosFinanceiros.unicos.filter(e => e.id !== id);
     atualizarTabelaEventosUnicos();
+}
+
+function editarEventoUnico(id) {
+    const ev = dadosApp.eventosFinanceiros.unicos.find(e => e.id === id);
+    if (!ev) return;
+
+    document.getElementById('anoEvento').value      = ev.ano;
+    document.getElementById('tipoEvento').value     = ev.tipo;
+    document.getElementById('valorEvento').value    = ev.valor;
+    document.getElementById('descricaoEvento').value= ev.descricao;
+
+    eventoUnicoEmEdicao = id;
+    document.getElementById('btnSalvarEventoUnico').textContent = 'Atualizar';
+    mostrarFormEventoUnico();
 }
 
 function atualizarTabelaEventosUnicos() {
@@ -339,6 +375,7 @@ function atualizarTabelaEventosUnicos() {
             <td>€${evento.valor.toLocaleString()}</td>
             <td>${evento.descricao}</td>
             <td>
+                <button class="btn-action btn-edit" onclick="editarEventoUnico(${evento.id})">Editar</button>
                 <button class="btn-action btn-remove" onclick="removerEventoUnico(${evento.id})">Remover</button>
             </td>
         `;
@@ -363,28 +400,64 @@ function limparFormEventoRecorrente() {
     document.getElementById('periodicidadeEvento').value = 'Mensal';
     document.getElementById('valorPeriodoEvento').value = '';
     document.getElementById('descricaoEventoRecorrente').value = '';
+    eventoRecorrenteEmEdicao = null;
+    document.getElementById('btnSalvarEventoRecorrente').textContent = 'Salvar';
 }
 
 function salvarEventoRecorrente() {
-    const novoEvento = {
-        id: Date.now(),
-        anoInicio: parseInt(document.getElementById('anoInicioEvento').value),
-        anoFim: parseInt(document.getElementById('anoFimEvento').value),
-        tipo: document.getElementById('tipoEventoRecorrente').value,      // NOVO
-        periodicidade: document.getElementById('periodicidadeEvento').value,
-        valorPeriodo: parseFloat(document.getElementById('valorPeriodoEvento').value),
-        descricao: document.getElementById('descricaoEventoRecorrente').value
-    };
+    if (eventoRecorrenteEmEdicao !== null) {
+        // — ACTUALIZAR —
+        const ev = dadosApp.eventosFinanceiros.recorrentes.find(e => e.id === eventoRecorrenteEmEdicao);
+        if (ev) {
+            ev.anoInicio    = parseInt(document.getElementById('anoInicioEvento').value);
+            ev.anoFim       = parseInt(document.getElementById('anoFimEvento').value);
+            ev.tipo         = document.getElementById('tipoEventoRecorrente').value;
+            ev.periodicidade= document.getElementById('periodicidadeEvento').value;
+            ev.valorPeriodo = parseFloat(document.getElementById('valorPeriodoEvento').value);
+            ev.descricao    = document.getElementById('descricaoEventoRecorrente').value;
+        }
+    } else {
+        // — NOVO —
+        const novoEvento = {
+            id: Date.now(),
+            anoInicio: parseInt(document.getElementById('anoInicioEvento').value),
+            anoFim: parseInt(document.getElementById('anoFimEvento').value),
+            tipo: document.getElementById('tipoEventoRecorrente').value,
+            periodicidade: document.getElementById('periodicidadeEvento').value,
+            valorPeriodo: parseFloat(document.getElementById('valorPeriodoEvento').value),
+            descricao: document.getElementById('descricaoEventoRecorrente').value
+        };
+        dadosApp.eventosFinanceiros.recorrentes.push(novoEvento);
+    }
 
-    dadosApp.eventosFinanceiros.recorrentes.push(novoEvento);
     atualizarTabelaEventosRecorrentes();
     esconderFormEventoRecorrente();
+    eventoRecorrenteEmEdicao = null;
+    document.getElementById('btnSalvarEventoRecorrente').textContent = 'Salvar';
 }
+
 
 
 function removerEventoRecorrente(id) {
     dadosApp.eventosFinanceiros.recorrentes = dadosApp.eventosFinanceiros.recorrentes.filter(e => e.id !== id);
     atualizarTabelaEventosRecorrentes();
+}
+
+// ------------ EVENTO RECORRENTE ------------
+function editarEventoRecorrente(id) {
+    const ev = dadosApp.eventosFinanceiros.recorrentes.find(e => e.id === id);
+    if (!ev) return;
+
+    document.getElementById('anoInicioEvento').value   = ev.anoInicio;
+    document.getElementById('anoFimEvento').value      = ev.anoFim;
+    document.getElementById('tipoEventoRecorrente').value = ev.tipo ?? 'Depósito';
+    document.getElementById('periodicidadeEvento').value  = ev.periodicidade;
+    document.getElementById('valorPeriodoEvento').value   = ev.valorPeriodo;
+    document.getElementById('descricaoEventoRecorrente').value = ev.descricao;
+
+    eventoRecorrenteEmEdicao = id;
+    document.getElementById('btnSalvarEventoRecorrente').textContent = 'Atualizar';
+    mostrarFormEventoRecorrente();
 }
 
 function atualizarTabelaEventosRecorrentes() {
@@ -398,14 +471,15 @@ function atualizarTabelaEventosRecorrentes() {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${evento.anoInicio}-${evento.anoFim}</td>
-            <td>${tipo}</td>                                   <!-- NOVO -->
+            <td>${tipo}</td>
             <td>${evento.periodicidade}</td>
             <td>€${evento.valorPeriodo.toLocaleString()}</td>
             <td>${evento.descricao}</td>
             <td>
+                <button class="btn-action btn-edit" onclick="editarEventoRecorrente(${evento.id})">Editar</button>
                 <button class="btn-action btn-remove" onclick="removerEventoRecorrente(${evento.id})">Remover</button>
             </td>
-        `;
+            `;
         tbody.appendChild(row);
     });
 }
@@ -484,7 +558,8 @@ function atualizarTabelaDespesasVariaveis() {
         row.innerHTML = `
             <td>${despesa.descricao}</td>
             <td>€${despesa.valorMensal.toLocaleString()}</td>
-            <td>${despesa.anoInicio}-${despesa.anoFim}</td>
+            <td>${despesa.anoInicio}</td>
+            <td>${despesa.anoFim}</td>
             <td>
                 <button class="btn-action btn-edit"   onclick="editarDespesa(${despesa.id})">Editar</button>
                 <button class="btn-action btn-remove" onclick="removerDespesa(${despesa.id})">Remover</button>
