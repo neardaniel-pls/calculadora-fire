@@ -16,7 +16,7 @@ let dadosApp = {
             taxaEsperada: 8,
             dataInicio: "2025-01-01",
             dataFim: "2055-01-01",
-            descricao: "VWCE"
+            descricao: "FTSE ALL-World"
         },
         {
             id: 2,
@@ -26,6 +26,15 @@ let dadosApp = {
             dataInicio: "2025-01-01",
             dataFim: "2055-01-01",
             descricao: "Stoik PPR"
+        },
+        {
+            id: 3,
+            tipo: "Cripto",
+            valorMensal: 200,
+            taxaEsperada: 14,
+            dataInicio: "2025-01-01",
+            dataFim: "2055-01-01",
+            descricao: "Bitcoin"
         }
     ],
     eventosFinanceiros: {
@@ -34,15 +43,15 @@ let dadosApp = {
                 id: 1,
                 ano: 2035,
                 tipo: "Depósito",
-                valor: 50000,
+                valor: 5000,
                 descricao: "Herança"
             },
             {
                 id: 2,
-                ano: 2040,
+                ano: 2035,
                 tipo: "Levantamento",
-                valor: 20000,
-                descricao: "Viagem"
+                valor: 6000,
+                descricao: "Viagem Japão"
             }
         ],
         recorrentes: [
@@ -51,18 +60,9 @@ let dadosApp = {
                 anoInicio: 2025,
                 anoFim: 2050,
                 periodicidade: "Anual",
-                valorPeriodo: 3000,
+                valorPeriodo: 50,
                 descricao: "Bônus",
-                tipo: "Depósito"
-            },
-            {
-                id: 2,
-                anoInicio: 2025,
-                anoFim: 2030,
-                periodicidade: "Mensal",
-                valorPeriodo: 700,
-                descricao: "Aluguel do apartamento",
-                tipo: "Levantamento"
+                tipo: "Renda Extra"
             }
         ]
     },
@@ -609,22 +609,52 @@ function fluxoRecorrenteAnual(ano) {
     }, 0);
 }
 
+// ------------------------------ FUNÇÕES DE CÁLCULO ------------------------------
+
+/**
+ * Devolve o total de despesas fixas + variáveis + levantamentos recorrentes
+ * para um determinado ano do calendário.
+ */
+function despesasTotaisPorAno(ano) {
+    // Mapa fixo para converter periodicidade em "vezes por ano"
+    const PERIODOS_POR_ANO = { Mensal: 12, Trimestral: 4, Semestral: 2, Anual: 1 };
+
+    let total = dadosApp.dadosBasicos.despesasAnuais || 0; // despesas fixas
+
+    // 1) Despesas variáveis
+    dadosApp.despesasVariaveis.forEach(d => {
+        if (ano >= d.anoInicio && ano <= d.anoFim) {
+            total += d.valorMensal * 12;
+        }
+    });
+
+    // 2) Eventos recorrentes tipo "Levantamento"
+    (dadosApp.eventosFinanceiros?.recorrentes ?? []).forEach(ev => {
+        if (ev.tipo !== 'Levantamento') return;
+        if (ano < ev.anoInicio || ano > ev.anoFim) return;
+
+        const vezes = PERIODOS_POR_ANO[ev.periodicidade] ?? 1;
+        total += ev.valorPeriodo * vezes;
+    });
+
+    return total;
+}
+
 
 // Função principal de cálculo
 function calcularResultados() {
     // ------------- 0. Preparação -------------
     atualizarDadosBasicos();
 
-    // Mapa fixo para converter a periodicidade em “vezes por ano”
+    // Mapa fixo para converter periodicidade em “vezes por ano”
     const PERIODOS_POR_ANO = { Mensal: 12, Trimestral: 4, Semestral: 2, Anual: 1 };
 
-    // Helper interno: devolve a soma líquida de depósitos ( + ) e levantamentos ( − )
-    // que efectivamente acontecem no ano recebido.
+    // Helper interno: devolve a soma líquida (+/-) de depósitos e levantamentos recorrentes
     function fluxoRecorrenteAnual(ano) {
-        const recorrentes = (dadosApp.eventosFinanceiros?.recorrentes) ?? [];
+        const recorrentes = dadosApp.eventosFinanceiros?.recorrentes ?? [];
         return recorrentes.reduce((total, ev) => {
-            const dentroDoIntervalo = ano >= ev.anoInicio && ano <= ev.anoFim;
-            if (!dentroDoIntervalo) return total;
+            const dentro = ano >= ev.anoInicio && ano <= ev.anoFim;
+            if (!dentro) return total;
 
             const vezes = PERIODOS_POR_ANO[ev.periodicidade] ?? 1;
             const sinal = ev.tipo === 'Levantamento' ? -1 : 1;
@@ -632,88 +662,81 @@ function calcularResultados() {
         }, 0);
     }
 
-    // ------------- 1. Dados de base -------------
+    // ---------- 1. Dados de base ----------
     const dadosBasicos   = dadosApp.dadosBasicos;
-    const valorFIRE      = dadosBasicos.despesasAnuais / (dadosBasicos.taxaRetirada / 100);
 
-    // cresce com a inflação até ao ano em análise
+    // Ano de referência (hoje ou definido na app)
+    const anoBase = dadosApp.anoInicial || new Date().getFullYear();
+
+    // Despesas completas do ano-base
+    const despesasBase = despesasTotaisPorAno(anoBase);
+
+    // Valor FIRE do ano‑base
+    const valorFIRE = despesasBase / (dadosBasicos.taxaRetirada / 100);
+
+    // Cresce com a inflação a partir do ano‑base
     function alvoFIRE(anosDecorridos) {
-        const despesaInfla = dadosBasicos.despesasAnuais *
-                            Math.pow(1 + dadosBasicos.inflacaoAnual/100, anosDecorridos);
-        return despesaInfla / (dadosBasicos.taxaRetirada/100);
+        const despesasInfla = despesasBase *
+            Math.pow(1 + dadosBasicos.inflacaoAnual / 100, anosDecorridos);
+        return despesasInfla / (dadosBasicos.taxaRetirada / 100);
     }
 
-    // Taxa de retorno ponderada sobre os depósitos diversificados
-    let totalValor = 0;
-    let somaValorada = 0;
+    // Taxa de retorno ponderada das contribuições
+    let totalValorMes = 0, somaValorada = 0;
     dadosApp.depositosDiversificados.forEach(dep => {
-        totalValor   += dep.valorMensal;
-        somaValorada += dep.valorMensal * dep.taxaEsperada;
+        totalValorMes   += dep.valorMensal;
+        somaValorada    += dep.valorMensal * dep.taxaEsperada;
     });
-    const taxaRetornoNominal = totalValor > 0 ? (somaValorada / totalValor) : 7;
+    const taxaRetornoNominal = totalValorMes > 0 ? (somaValorada / totalValorMes) : 7;
     const taxaRetornoReal    = taxaRetornoNominal - dadosBasicos.inflacaoAnual;
 
-    // Contribuições e capital de partida
+    // Contribuições programadas
     const capitalInicial     = dadosBasicos.valorInvestido;
-    const contribuicaoMensal = totalValor;
+    const contribuicaoAnual  = totalValorMes * 12;
 
-    // Contribuições para investimento programadas
-    const contribuicaoAnual = dadosApp.depositosDiversificados
-        .reduce((acc, dep) => acc + dep.valorMensal * 12, 0);
-
-    // ---------- NOVO: saldo de rendimentos menos despesas fixas ----------
+    // Saldo de rendimento vs despesas fixas
     const fluxoBasicoAnual = (dadosBasicos.rendimentoAnual || 0) -
-                            (dadosBasicos.despesasAnuais  || 0) -
-                            contribuicaoAnual;          // já contámos as contribuições acima
-    // ---------------------------------------------------------------------
+                             (dadosBasicos.despesasAnuais  || 0) -
+                             contribuicaoAnual;
 
-    // ------------- 2. Simulação ano-a-ano -------------
+    // ---------- 2. Simulação ano‑a‑ano ----------
     let anosParaFIRE = 0;
     let valorAtual   = capitalInicial;
 
-    // Usa o ano definido na app; se faltar, assume o ano civil corrente
-    const anoBase = dadosApp.anoInicial || new Date().getFullYear();
-    
-    const ANO_MAXIMO = 120;               // segurança: ninguém vive 120 anos 😄
+    const ANO_MAXIMO = 120; // segurança
 
     while (valorAtual < alvoFIRE(anosParaFIRE) && anosParaFIRE < ANO_MAXIMO) {
         const anoCorrente     = anoBase + anosParaFIRE;
         const fluxoRecorrente = fluxoRecorrenteAnual(anoCorrente);
-        const fluxoVariavel   = fluxoVariavelAnual(anoCorrente);
-        const fluxoUnico      = fluxoUnicoAnual(anoCorrente);
+        const fluxoVariavel   = fluxoVariavelAnual(anoCorrente); // definida algures noutro lugar
+        const fluxoUnico      = fluxoUnicoAnual(anoCorrente);    // idem
 
         valorAtual = valorAtual * (1 + taxaRetornoNominal / 100) +
-                    // aportes e fluxos de caixa
-                    contribuicaoAnual +
-                    fluxoBasicoAnual +
-                    fluxoRecorrente +
-                    fluxoVariavel +
-                    fluxoUnico;
+                     contribuicaoAnual +
+                     fluxoBasicoAnual +
+                     fluxoRecorrente +
+                     fluxoVariavel +
+                     fluxoUnico;
 
         anosParaFIRE++;
     }
 
     const atingiuFIRE = valorAtual >= valorFIRE;
-    const idadeFIRE = atingiuFIRE
-        ? dadosBasicos.idadeAtual + anosParaFIRE
-        : '—';                            // ou 'Não atinge'
-    document.getElementById('idadeFIRE').textContent = idadeFIRE;
+    const idadeFIRE   = atingiuFIRE ? dadosBasicos.idadeAtual + anosParaFIRE : '—';
 
-
-    // ------------- 3. Interface -------------
+    // ---------- 3. Interface ----------
     document.getElementById('valorFIRE').textContent         = `€${valorFIRE.toLocaleString()}`;
     document.getElementById('idadeFIRE').textContent         = idadeFIRE;
     document.getElementById('taxaRetornoNominal').textContent= `${taxaRetornoNominal.toFixed(2)}%`;
     document.getElementById('taxaRetornoReal').textContent   = `${taxaRetornoReal.toFixed(2)}%`;
 
-    // Actualizar gráficos ou tabelas conforme já tinhas
     atualizarGraficos();
 }
 
 
 function atualizarGraficos() {
     criarGraficoEvolucaoPatrimonial();
-    criarGraficoDespesasVariaveis();
+    criarGraficoDespesas();
 }
 
 function criarGraficoEvolucaoPatrimonial() {
@@ -789,44 +812,80 @@ function criarGraficoEvolucaoPatrimonial() {
     });
 }
 
-// CORREÇÃO PRINCIPAL: Gráfico de despesas variáveis corrigido
-function criarGraficoDespesasVariaveis() {
+
+function criarGraficoDespesas() {
     const ctx = document.getElementById('chartDespesasVariaveis').getContext('2d');
-    
+
+    // Destrói o gráfico anterior (se existir)
     if (chartDespesasVariaveis) {
         chartDespesasVariaveis.destroy();
     }
-    
-    // Calcular dados para despesas variáveis ao longo do tempo
+
+    // ----- 1. Preparar anos do eixo‑X -----
     const anos = [];
-    const datasets = [];
-    const cores = ['#1FB8CD', '#FFC185', '#B4413C', '#ECEBD5', '#5D878F', '#DB4545', '#D2BA4C', '#964325', '#944454', '#13343B'];
-    
-    // Gerar anos de 2025 a 2055
     for (let ano = 2025; ano <= 2055; ano++) {
         anos.push(ano);
     }
-    
-    // Criar dataset para cada despesa variável
-    dadosApp.despesasVariaveis.forEach((despesa, index) => {
-        const dadosDespesa = anos.map(ano => {
-            if (ano >= despesa.anoInicio && ano <= despesa.anoFim) {
-                return despesa.valorMensal * 12; // Converter para anual
-            }
-            return 0;
+
+    // ----- 2. Criar datasets individuais + acumular total -----
+    const datasets = [];
+    const cores = ['#1FB8CD', '#FFC185', '#B4413C', '#ECEBD5', '#5D878F', '#DB4545', '#D2BA4C', '#964325', '#944454', '#13343B'];
+    const totalPorAno = Array(anos.length).fill(0);   // vector para a linha "Total"
+
+    // -------- NOVO: Despesas Fixas Anuais --------
+    const despesasFixasAnuais = dadosApp.dadosBasicos.despesasAnuais || 0; // valor fixo todos os anos
+    // ---------------------------------------------
+
+    dadosApp.despesasVariaveis.forEach((despesa, idx) => {
+        const dadosDespesa = anos.map((ano, i) => {
+            const valor = (ano >= despesa.anoInicio && ano <= despesa.anoFim)
+                ? despesa.valorMensal * 12   // converter mensal → anual
+                : 0;
+            totalPorAno[i] += valor;          // acumular no total
+            return valor;
         });
-        
+
         datasets.push({
             label: despesa.descricao,
             data: dadosDespesa,
-            backgroundColor: cores[index % cores.length],
-            borderColor: cores[index % cores.length],
+            borderColor: cores[idx % cores.length],
+            backgroundColor: cores[idx % cores.length] + '33', // 20% opacidade
             borderWidth: 2,
             fill: false,
             tension: 0.1
         });
     });
-    
+
+    // ----- 3. Adicionar despesas fixas ao total e dataset opcional -----
+    for (let i = 0; i < totalPorAno.length; i++) {
+        totalPorAno[i] += despesasFixasAnuais;
+    }
+
+    // Linha horizontal das despesas fixas (útil para referência visual)
+    datasets.push({
+        label: 'Despesas Fixas',
+        data: anos.map(() => despesasFixasAnuais),
+        borderColor: '#4B4B4B',
+        backgroundColor: 'rgba(75,75,75,0.1)',
+        borderWidth: 2,
+        fill: false,
+        tension: 0.1,
+        borderDash: [4, 4]
+    });
+
+    // Dataset "Total" (variáveis + fixas)
+    datasets.push({
+        label: 'Total (Variáveis + Fixas)',
+        data: totalPorAno,
+        borderColor: 'rgb(255, 99, 132)',
+        backgroundColor: 'rgba(191, 172, 25, 0.1)',
+        borderWidth: 3,
+        fill: false,
+        tension: 0.1,
+        borderDash: [6, 4]   // linha tracejada para diferenciar
+    });
+
+    // ----- 4. Construir gráfico -----
     chartDespesasVariaveis = new Chart(ctx, {
         type: 'line',
         data: {
@@ -835,16 +894,12 @@ function criarGraficoDespesasVariaveis() {
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false, // CORREÇÃO: Desativar aspecto fixo
-            aspectRatio: 2, // CORREÇÃO: Definir aspecto personalizado
+            maintainAspectRatio: false,
             scales: {
                 y: {
                     beginAtZero: true,
-                    stacked: false,
                     ticks: {
-                        callback: function(value) {
-                            return '€' + value.toLocaleString();
-                        }
+                        callback: value => '€' + value.toLocaleString()
                     }
                 },
                 x: {
@@ -866,9 +921,7 @@ function criarGraficoDespesasVariaveis() {
                     mode: 'index',
                     intersect: false,
                     callbacks: {
-                        label: function(context) {
-                            return context.dataset.label + ': €' + context.raw.toLocaleString() + '/ano';
-                        }
+                        label: context => `${context.dataset.label}: €${context.raw.toLocaleString()}/ano`
                     }
                 }
             },
