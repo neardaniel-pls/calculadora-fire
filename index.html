@@ -14,6 +14,7 @@
         <div class="container">
             <h1>Calculadora FIRE</h1>
             <p>Independência Financeira, Aposentadoria Antecipada</p>
+            <button id="theme-toggle" class="btn btn--secondary">Mudar Tema</button>
         </div>
     </header>
 
@@ -345,7 +346,23 @@
                 <div class="card__header">
                     <h2>Evolução Patrimonial</h2>
                 </div>
-                <div class="card__body">
+<div class="card__body">
+                    <div class="chart-controls" style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                        <div class="btn-group" role="toolbar" aria-label="Filtrar período do gráfico">
+                            <button type="button" class="btn btn--sm btn--outline" data-period="1M">1M</button>
+                            <button type="button" class="btn btn--sm btn--outline" data-period="6M">6M</button>
+                            <button type="button" class="btn btn--sm btn--outline" data-period="YTD">YTD</button>
+                            <button type="button" class="btn btn--sm btn--outline" data-period="1A">1A</button>
+                            <button type="button" class="btn btn--sm btn--outline active" data-period="ALL">Tudo</button>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="chart-granularity" class="sr-only">Granularidade</label>
+                            <select id="chart-granularity" class="form-control">
+                                <option value="anual">Anual</option>
+                                <option value="mensal">Mensal</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="chart-container">
                         <canvas id="chartEvolucaoPatrimonial"></canvas>
                     </div>
@@ -365,9 +382,22 @@
             </section>
         </div>
 
+        <section class="card section">
+            <div class="card__header">
+                <h2>Distribuição de Ativos</h2>
+            </div>
+            <div class="card__body">
+                <div class="chart-container" style="height: 400px; width: 100%;">
+                    <canvas id="chartAssetAllocation"></canvas>
+                </div>
+            </div>
+        </section>
+
         <div class="actions-container">
             <button type="button" id="btnCalcular" class="btn btn--primary btn--lg">Calcular</button>
             <button type="button" id="btnDownloadPDF" class="btn btn--secondary btn--lg">Baixar Relatório PDF</button>
+            <button type="button" id="btnExportarDados" class="btn btn--outline btn--lg">Exportar Dados</button>
+            <button type="button" id="btnImportarDados" class="btn btn--outline btn--lg">Importar Dados</button>
         </div>
     </main>
 
@@ -377,6 +407,6 @@
         </div>
     </footer>
 
-    <script src="src/app.js"></script>
+    <script type="module" src="src/app.js"></script>
 </body>
 </html>
