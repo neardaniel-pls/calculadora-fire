@@ -29,8 +29,8 @@ import {
     atualizarTabelaDespesasVariaveis
 } from './ui.js';
 
-import { simularEvolucaoPatrimonial } from './calculator.js';
-import { atualizarGraficos } from './charts.js';
+import { simularEvolucaoPatrimonial, simularMonteCarlo } from './calculator.js';
+import { atualizarGraficos, criarGraficoMonteCarloDistribution } from './charts.js';
 import { gerarPDF } from './pdf.js';
 
 // --- Funções de Lógica de Negócio (Handlers) ---
@@ -100,6 +100,7 @@ function atualizarDadosBasicos() {
         taxaRetirada: parseFloat(document.getElementById('taxaRetirada').value),
         inflacaoAnual: parseFloat(document.getElementById('inflacaoAnual').value),
         idadeAtual: parseInt(document.getElementById('idadeAtual').value),
+        idadeReforma: parseInt(document.getElementById('idadeReforma').value),
         rendimentoAnual: parseFloat(document.getElementById('rendimentoAnual').value),
         despesasAnuais: parseFloat(document.getElementById('despesasAnuais').value),
         valorInvestido: parseFloat(document.getElementById('valorInvestido').value)
@@ -172,6 +173,21 @@ function calcularResultados() {
     document.getElementById('taxaRetornoReal').textContent = `${resultados.taxaRetornoReal.toFixed(2)}%`;
 
     atualizarGraficos(resultados);
+}
+
+function calcularResultadosMonteCarlo() {
+    atualizarDadosBasicos();
+    const resultadosMC = simularMonteCarlo(1000); // 1000 simulações
+
+    document.getElementById('mcP10').textContent = `€${Math.round(resultadosMC.p10).toLocaleString()}`;
+    document.getElementById('mcP50').textContent = `€${Math.round(resultadosMC.p50).toLocaleString()}`;
+    document.getElementById('mcP90').textContent = `€${Math.round(resultadosMC.p90).toLocaleString()}`;
+    document.getElementById('mcTaxaSucesso').textContent = `${resultadosMC.taxaDeSucesso.toFixed(1)}%`;
+
+    const resultadosSection = document.getElementById('resultadosMonteCarlo');
+    resultadosSection.classList.remove('hidden');
+
+    criarGraficoMonteCarloDistribution(resultadosMC.resultados);
 }
 
 function exportarDados() {
@@ -251,6 +267,33 @@ function handleTableActions(event) {
     }
 }
 
+const investmentTemplates = {
+    conservador: [
+        { id: 1, tipo: "Obrigações Governamentais", valorMensal: 600, taxaEsperada: 2.5, desvioPadrao: 1.5, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Baixo Risco" },
+        { id: 2, tipo: "PPR Defensivo", valorMensal: 200, taxaEsperada: 3, desvioPadrao: 2, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Benefícios Fiscais" },
+        { id: 3, tipo: "Depósitos a Prazo", valorMensal: 200, taxaEsperada: 1.5, desvioPadrao: 0.5, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Capital Garantido" }
+    ],
+    moderado: [
+        { id: 1, tipo: "ETF Global (VWCE)", valorMensal: 500, taxaEsperada: 7, desvioPadrao: 15, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Diversificação Global" },
+        { id: 2, tipo: "Imobiliário (REITs)", valorMensal: 300, taxaEsperada: 5, desvioPadrao: 10, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Rendimento Passivo" },
+        { id: 3, tipo: "PPR Equilibrado", valorMensal: 200, taxaEsperada: 5.5, desvioPadrao: 8, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Crescimento e Segurança" }
+    ],
+    agressivo: [
+        { id: 1, tipo: "ETF Global (VWCE)", valorMensal: 600, taxaEsperada: 8, desvioPadrao: 18, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Máximo Crescimento" },
+        { id: 2, tipo: "Ações de Tecnologia (QQQ)", valorMensal: 250, taxaEsperada: 12, desvioPadrao: 25, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Alto Potencial" },
+        { id: 3, tipo: "Criptomoedas (BTC/ETH)", valorMensal: 150, taxaEsperada: 15, desvioPadrao: 50, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Elevado Risco/Retorno" }
+    ]
+};
+
+function aplicarTemplateInvestimento(nomeTemplate) {
+    if (!investmentTemplates[nomeTemplate]) return;
+
+    dadosApp.depositosDiversificados = JSON.parse(JSON.stringify(investmentTemplates[nomeTemplate]));
+    atualizarTabelaDepositos();
+    salvarDadosNoLocalStorage();
+    calcularResultados();
+}
+
 function configurarEventListeners() {
     const mainContainer = document.querySelector('main.container');
     
@@ -258,6 +301,7 @@ function configurarEventListeners() {
 
     document.getElementById('formDadosBasicos').addEventListener('change', atualizarDadosBasicos);
     document.getElementById('btnCalcular').addEventListener('click', calcularResultados);
+    document.getElementById('btnCalcularMonteCarlo').addEventListener('click', calcularResultadosMonteCarlo);
     document.getElementById('btnDownloadPDF').addEventListener('click', gerarPDF);
     document.getElementById('btnExportarDados').addEventListener('click', exportarDados);
     document.getElementById('btnImportarDados').addEventListener('click', importarDados);
@@ -290,26 +334,24 @@ function configurarEventListeners() {
         salvarDadosNoLocalStorage();
     });
 
-    // Theme Toggle
-    document.getElementById('theme-toggle').addEventListener('click', setupThemeToggle);
-}
-// Chart Controls
-    document.getElementById('chart-granularity').addEventListener('change', calcularResultados);
-    
-    const periodButtons = document.querySelectorAll('.btn-group[role="toolbar"] .btn');
-    periodButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
-            periodButtons.forEach(btn => btn.classList.remove('active'));
-            e.currentTarget.classList.add('active');
-            calcularResultados();
-        });
+    // Investment Template Selector
+    document.getElementById('investmentTemplate').addEventListener('change', (e) => {
+        const template = e.target.value;
+        if (template) {
+            aplicarTemplateInvestimento(template);
+        }
     });
-
-function setupThemeToggle() {
-    const htmlElement = document.documentElement;
-    const currentTheme = htmlElement.getAttribute('data-color-scheme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    htmlElement.setAttribute('data-color-scheme', newTheme);
+   // Chart Controls
+   document.getElementById('chart-granularity').addEventListener('change', calcularResultados);
+   
+   const periodButtons = document.querySelectorAll('.btn-group[role="toolbar"] .btn');
+   periodButtons.forEach(button => {
+       button.addEventListener('click', (e) => {
+           periodButtons.forEach(btn => btn.classList.remove('active'));
+           e.currentTarget.classList.add('active');
+           calcularResultados();
+       });
+   });
 }
 
 // --- Inicialização da Aplicação ---

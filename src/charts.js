@@ -303,4 +303,57 @@ function atualizarGraficos(resultadosSimulacao) {
     criarGraficoAssetAllocation();
 }
 
-export { atualizarGraficos };
+function criarGraficoMonteCarloDistribution(resultados) {
+    const ctx = document.getElementById('chartMonteCarloDistribution').getContext('2d');
+    
+    const labels = resultados.map((_, i) => i + 1);
+    const data = {
+        labels: labels,
+        datasets: [{
+            label: 'Distribuição de Resultados Finais',
+            data: resultados,
+            backgroundColor: 'rgba(112, 48, 160, 0.6)',
+            borderColor: 'rgba(112, 48, 160, 1)',
+            borderWidth: 1,
+            barPercentage: 1.0,
+            categoryPercentage: 1.0,
+        }]
+    };
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: data,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    display: false, // Oculta o eixo X para um visual de histograma
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '€' + value.toLocaleString();
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Simulação ${context.dataIndex + 1}: €${Math.round(context.raw).toLocaleString()}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+
+export { atualizarGraficos, criarGraficoMonteCarloDistribution };
