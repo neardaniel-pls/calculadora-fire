@@ -14,7 +14,6 @@
         <div class="container">
             <h1>Calculadora FIRE</h1>
             <p>Independência Financeira, Aposentadoria Antecipada</p>
-            <button id="theme-toggle" class="btn btn--secondary">Mudar Tema</button>
         </div>
     </header>
 
@@ -44,11 +43,15 @@
                             <input type="number" id="idadeAtual" name="idadeAtual" value="30" min="18" max="90" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for="rendimentoAnual" class="form-label">Rendimento Anual (€)</label>
-                            <input type="number" id="rendimentoAnual" name="rendimentoAnual" value="36000" min="0" class="form-control">
+                            <label for="idadeReforma" class="form-label">Simular até à Idade</label>
+                            <input type="number" id="idadeReforma" name="idadeReforma" value="65" min="18" max="100" class="form-control">
                         </div>
                     </div>
                     <div class="form-row">
+                        <div class="form-group">
+                            <label for="rendimentoAnual" class="form-label">Rendimento Anual (€)</label>
+                            <input type="number" id="rendimentoAnual" name="rendimentoAnual" value="36000" min="0" class="form-control">
+                        </div>
                         <div class="form-group">
                             <label for="despesasAnuais" class="form-label">Despesas Anuais (€)</label>
                             <input type="number" id="despesasAnuais" name="despesasAnuais" value="24000" min="0" class="form-control">
@@ -85,7 +88,16 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="form-row mt-16">
+                <div class="form-row mt-16" style="align-items: center;">
+                    <div class="form-group" style="flex-grow: 0;">
+                        <label for="investmentTemplate" class="sr-only">Template de Investimento</label>
+                        <select id="investmentTemplate" class="form-control">
+                            <option value="">Escolher um template...</option>
+                            <option value="conservador">Conservador</option>
+                            <option value="moderado">Moderado</option>
+                            <option value="agressivo">Agressivo</option>
+                        </select>
+                    </div>
                     <button type="button" id="btnAdicionarDeposito" class="btn btn--primary">Adicionar Depósito</button>
                     <div class="taxa-info">
                         <span>Taxa de Retorno Ponderada: </span>
@@ -143,6 +155,7 @@
                         <thead>
                             <tr>
                                 <th>Ano</th>
+                                <th>Mês</th>
                                 <th>Tipo</th>
                                 <th>Valor (€)</th>
                                 <th>Descrição</th>
@@ -163,6 +176,25 @@
                                 <label for="anoEvento" class="form-label">Ano</label>
                                 <input type="number" id="anoEvento" min="2023" class="form-control" required>
                             </div>
+                             <div class="form-group">
+                                <label for="mesEvento" class="form-label">Mês</label>
+                                <select id="mesEvento" class="form-control">
+                                    <option value="1">Janeiro</option>
+                                    <option value="2">Fevereiro</option>
+                                    <option value="3">Março</option>
+                                    <option value="4">Abril</option>
+                                    <option value="5">Maio</option>
+                                    <option value="6">Junho</option>
+                                    <option value="7">Julho</option>
+                                    <option value="8">Agosto</option>
+                                    <option value="9">Setembro</option>
+                                    <option value="10">Outubro</option>
+                                    <option value="11">Novembro</option>
+                                    <option value="12">Dezembro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
                             <div class="form-group">
                                 <label for="tipoEvento" class="form-label">Tipo</label>
                                 <select id="tipoEvento" class="form-control">
@@ -170,8 +202,6 @@
                                     <option value="Levantamento">Levantamento</option>
                                 </select>
                             </div>
-                        </div>
-                        <div class="form-row">
                             <div class="form-group">
                                 <label for="valorEvento" class="form-label">Valor (€)</label>
                                 <input type="number" id="valorEvento" min="0" class="form-control" required>
@@ -341,6 +371,57 @@
             </div>
         </section>
 
+        <section id="resultadosMonteCarlo" class="card section hidden">
+            <div class="card__header">
+                <h2>Resultados da Simulação de Monte Carlo</h2>
+            </div>
+            <div class="card__body">
+                <div class="resultados-grid">
+                    <div class="resultado-item">
+                        <div class="resultado-label">Património (Pessimista - P10)</div>
+                        <div class="resultado-value" id="mcP10">€0</div>
+                    </div>
+                    <div class="resultado-item">
+                        <div class="resultado-label">Património (Mediano - P50)</div>
+                        <div class="resultado-value" id="mcP50">€0</div>
+                    </div>
+                    <div class="resultado-item">
+                        <div class="resultado-label">Património (Otimista - P90)</div>
+                        <div class="resultado-value" id="mcP90">€0</div>
+                    </div>
+                    <div class="resultado-item">
+                        <div class="resultado-label">Taxa de Sucesso</div>
+                        <div class="resultado-value" id="mcTaxaSucesso">0%</div>
+                    </div>
+                </div>
+                <div class="chart-container" style="height: 400px; width: 100%; margin-top: 24px;">
+                    <canvas id="chartMonteCarloDistribution"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="analiseSensibilidade" class="card section hidden">
+            <div class="card__header">
+                <h2>Análise de Sensibilidade</h2>
+            </div>
+            <div class="card__body">
+                <p>Esta análise mostra como a sua Idade FIRE pode variar com pequenas alterações nos seus pressupostos de retorno e inflação.</p>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Cenário</th>
+                                <th>Idade FIRE Resultante</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaAnaliseSensibilidade">
+                            <!-- Os resultados da análise serão inseridos aqui -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
         <div class="charts-container">
             <section class="card section">
                 <div class="card__header">
@@ -394,7 +475,8 @@
         </section>
 
         <div class="actions-container">
-            <button type="button" id="btnCalcular" class="btn btn--primary btn--lg">Calcular</button>
+            <button type="button" id="btnCalcular" class="btn btn--primary btn--lg">Calcular Projeção</button>
+            <button type="button" id="btnCalcularMonteCarlo" class="btn btn--primary btn--lg">Calcular Monte Carlo</button>
             <button type="button" id="btnDownloadPDF" class="btn btn--secondary btn--lg">Baixar Relatório PDF</button>
             <button type="button" id="btnExportarDados" class="btn btn--outline btn--lg">Exportar Dados</button>
             <button type="button" id="btnImportarDados" class="btn btn--outline btn--lg">Importar Dados</button>

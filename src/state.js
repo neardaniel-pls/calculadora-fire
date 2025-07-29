@@ -6,6 +6,7 @@ const initialState = {
         taxaRetirada: 4,
         inflacaoAnual: 2,
         idadeAtual: 29,
+        idadeReforma: 65,
         rendimentoAnual: 40000,
         despesasAnuais: 14400,
         valorInvestido: 20000
@@ -44,6 +45,7 @@ const initialState = {
             {
                 id: 1,
                 ano: 2035,
+                mes: 6, // Junho
                 tipo: "Depósito",
                 valor: 5000,
                 descricao: "Herança"
@@ -51,6 +53,7 @@ const initialState = {
             {
                 id: 2,
                 ano: 2035,
+                mes: 7, // Julho
                 tipo: "Levantamento",
                 valor: 6000,
                 descricao: "Viagem Japão"
@@ -119,7 +122,20 @@ function carregarDadosDoLocalStorage() {
     try {
         const dadosSalvos = localStorage.getItem('dadosCalculadoraFIRE');
         if (dadosSalvos) {
-            const dadosParse = JSON.parse(dadosSalvos);
+            let dadosParse = JSON.parse(dadosSalvos);
+            
+            // Garantir a migração de dados para novas estruturas
+            if (dadosParse.eventosFinanceiros && dadosParse.eventosFinanceiros.unicos) {
+                dadosParse.eventosFinanceiros.unicos.forEach(e => {
+                    if (!e.mes) e.mes = 1; // Adiciona o mês padrão se não existir
+                });
+            }
+            if (dadosParse.depositosDiversificados) {
+                dadosParse.depositosDiversificados.forEach(d => {
+                    if (!d.desvioPadrao) d.desvioPadrao = 5; // Adiciona desvio padrão padrão
+                });
+            }
+
             // Fundir dados para garantir que novas propriedades sejam adicionadas
             // caso o modelo de dados mude no futuro.
             dadosApp = { ...initialState, ...dadosParse };

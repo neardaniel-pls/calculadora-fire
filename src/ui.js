@@ -94,6 +94,7 @@ function esconderFormEventoUnico() {
 
 function limparFormEventoUnico() {
     document.getElementById('anoEvento').value = '';
+    document.getElementById('mesEvento').value = '1';
     document.getElementById('tipoEvento').value = 'Depósito';
     document.getElementById('valorEvento').value = '';
     document.getElementById('descricaoEvento').value = '';
@@ -104,6 +105,7 @@ function limparFormEventoUnico() {
 
 function preencherFormularioEventoUnico(evento) {
     document.getElementById('anoEvento').value = evento.ano;
+    document.getElementById('mesEvento').value = evento.mes;
     document.getElementById('tipoEvento').value = evento.tipo;
     document.getElementById('valorEvento').value = evento.valor;
     document.getElementById('descricaoEvento').value = evento.descricao;
@@ -112,6 +114,7 @@ function preencherFormularioEventoUnico(evento) {
 function getDadosFormularioEventoUnico() {
     return {
         ano: parseInt(document.getElementById('anoEvento').value) || new Date().getFullYear(),
+        mes: parseInt(document.getElementById('mesEvento').value) || 1,
         tipo: document.getElementById('tipoEvento').value,
         valor: parseFloat(document.getElementById('valorEvento').value) || 0,
         descricao: document.getElementById('descricaoEvento').value
@@ -121,11 +124,13 @@ function getDadosFormularioEventoUnico() {
 function atualizarTabelaEventosUnicos() {
     const tbody = document.querySelector('#tabelaEventosUnicos tbody');
     tbody.innerHTML = '';
-    
+    const nomesMeses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+
     dadosApp.eventosFinanceiros.unicos.forEach(evento => {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${evento.ano}</td>
+            <td>${nomesMeses[evento.mes - 1]}</td>
             <td>${evento.tipo}</td>
             <td>€${evento.valor.toLocaleString()}</td>
             <td>${evento.descricao}</td>
@@ -267,6 +272,7 @@ function popularDadosIniciais() {
     document.getElementById('taxaRetiradaValue').textContent = dadosBasicos.taxaRetirada + '%';
     document.getElementById('inflacaoAnual').value = dadosBasicos.inflacaoAnual;
     document.getElementById('idadeAtual').value = dadosBasicos.idadeAtual;
+    document.getElementById('idadeReforma').value = dadosBasicos.idadeReforma;
     document.getElementById('rendimentoAnual').value = dadosBasicos.rendimentoAnual;
     document.getElementById('despesasAnuais').value = dadosBasicos.despesasAnuais;
     document.getElementById('valorInvestido').value = dadosBasicos.valorInvestido;
