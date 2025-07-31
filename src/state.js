@@ -17,6 +17,7 @@ const initialState = {
             tipo: "ETF Global",
             valorMensal: 400,
             taxaEsperada: 8,
+            desvioPadrao: 18,
             dataInicio: "2025-01-01",
             dataFim: "2055-01-01",
             descricao: "FTSE ALL-World"
@@ -26,6 +27,7 @@ const initialState = {
             tipo: "PPR",
             valorMensal: 150,
             taxaEsperada: 4,
+            desvioPadrao: 8,
             dataInicio: "2025-01-01",
             dataFim: "2055-01-01",
             descricao: "Stoik PPR"
@@ -35,6 +37,7 @@ const initialState = {
             tipo: "Cripto",
             valorMensal: 200,
             taxaEsperada: 14,
+            desvioPadrao: 40,
             dataInicio: "2025-01-01",
             dataFim: "2055-01-01",
             descricao: "Bitcoin"

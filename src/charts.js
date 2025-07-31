@@ -3,6 +3,7 @@ import { dadosApp } from './state.js';
 let chartEvolucaoPatrimonial = null;
 let chartDespesasVariaveis   = null;
 let chartAssetAllocation     = null;
+let chartMonteCarloDistribution = null;
 
 function criarGraficoAssetAllocation() {
     const ctx = document.getElementById('chartAssetAllocation').getContext('2d');
@@ -305,13 +306,37 @@ function atualizarGraficos(resultadosSimulacao) {
 
 function criarGraficoMonteCarloDistribution(resultados) {
     const ctx = document.getElementById('chartMonteCarloDistribution').getContext('2d');
+
+    if (chartMonteCarloDistribution) {
+        chartMonteCarloDistribution.destroy();
+    }
     
-    const labels = resultados.map((_, i) => i + 1);
+    // Para um histograma, é melhor agrupar os resultados em "bins"
+    const min = Math.min(...resultados);
+    const max = Math.max(...resultados);
+    const numBins = Math.min(50, Math.sqrt(resultados.length)); // Regra de Sturges, limitado a 50 bins
+    const binSize = (max - min) / numBins;
+
+    const bins = Array(Math.ceil(numBins)).fill(0);
+    const labels = [];
+
+    for (let i = 0; i < numBins; i++) {
+        const binStart = min + i * binSize;
+        const binEnd = binStart + binSize;
+        labels.push(`€${Math.round(binStart / 1000)}k - €${Math.round(binEnd / 1000)}k`);
+    }
+
+    resultados.forEach(res => {
+        let binIndex = Math.floor((res - min) / binSize);
+        if (binIndex >= bins.length) binIndex = bins.length - 1; // Para o valor máximo
+        bins[binIndex]++;
+    });
+
     const data = {
         labels: labels,
         datasets: [{
-            label: 'Distribuição de Resultados Finais',
-            data: resultados,
+            label: 'Frequência de Resultados',
+            data: bins,
             backgroundColor: 'rgba(112, 48, 160, 0.6)',
             borderColor: 'rgba(112, 48, 160, 1)',
             borderWidth: 1,
@@ -320,7 +345,7 @@ function criarGraficoMonteCarloDistribution(resultados) {
         }]
     };
 
-    new Chart(ctx, {
+    chartMonteCarloDistribution = new Chart(ctx, {
         type: 'bar',
         data: data,
         options: {
@@ -328,14 +353,18 @@ function criarGraficoMonteCarloDistribution(resultados) {
             maintainAspectRatio: false,
             scales: {
                 x: {
-                    display: false, // Oculta o eixo X para um visual de histograma
+                    ticks: {
+                        maxRotation: 90,
+                        minRotation: 70,
+                        autoSkip: true,
+                        maxTicksLimit: 10 // Limita o número de labels visíveis
+                    }
                 },
                 y: {
                     beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return '€' + value.toLocaleString();
-                        }
+                    title: {
+                        display: true,
+                        text: 'Número de Simulações'
                     }
                 }
             },
@@ -346,7 +375,7 @@ function criarGraficoMonteCarloDistribution(resultados) {
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            return `Simulação ${context.dataIndex + 1}: €${Math.round(context.raw).toLocaleString()}`;
+                            return `Simulações: ${context.raw}`;
                         }
                     }
                 }

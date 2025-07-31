@@ -26,7 +26,9 @@ import {
     esconderFormDespesa,
     preencherFormularioDespesa,
     getDadosFormularioDespesa,
-    atualizarTabelaDespesasVariaveis
+    atualizarTabelaDespesasVariaveis,
+    showLoader,
+    hideLoader
 } from './ui.js';
 
 import { simularEvolucaoPatrimonial, simularMonteCarlo } from './calculator.js';
@@ -175,11 +177,16 @@ function calcularResultados() {
     atualizarGraficos(resultados);
 }
 
-function calcularResultadosMonteCarlo() {
-    atualizarDadosBasicos();
-    const resultadosMC = simularMonteCarlo(1000); // 1000 simulações
+async function calcularResultadosMonteCarlo() {
+    showLoader();
+    await new Promise(resolve => setTimeout(resolve, 50)); // Allow UI to update
 
-    document.getElementById('mcP10').textContent = `€${Math.round(resultadosMC.p10).toLocaleString()}`;
+    try {
+        atualizarDadosBasicos();
+        const numSimulacoes = parseInt(document.getElementById('mcNumSimulacoes').value, 10) || 1000;
+        const resultadosMC = simularMonteCarlo(numSimulacoes);
+
+        document.getElementById('mcP10').textContent = `€${Math.round(resultadosMC.p10).toLocaleString()}`;
     document.getElementById('mcP50').textContent = `€${Math.round(resultadosMC.p50).toLocaleString()}`;
     document.getElementById('mcP90').textContent = `€${Math.round(resultadosMC.p90).toLocaleString()}`;
     document.getElementById('mcTaxaSucesso').textContent = `${resultadosMC.taxaDeSucesso.toFixed(1)}%`;
@@ -188,6 +195,9 @@ function calcularResultadosMonteCarlo() {
     resultadosSection.classList.remove('hidden');
 
     criarGraficoMonteCarloDistribution(resultadosMC.resultados);
+    } finally {
+        hideLoader();
+    }
 }
 
 function exportarDados() {
@@ -269,18 +279,18 @@ function handleTableActions(event) {
 
 const investmentTemplates = {
     conservador: [
-        { id: 1, tipo: "Obrigações Governamentais", valorMensal: 600, taxaEsperada: 2.5, desvioPadrao: 1.5, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Baixo Risco" },
-        { id: 2, tipo: "PPR Defensivo", valorMensal: 200, taxaEsperada: 3, desvioPadrao: 2, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Benefícios Fiscais" },
-        { id: 3, tipo: "Depósitos a Prazo", valorMensal: 200, taxaEsperada: 1.5, desvioPadrao: 0.5, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Capital Garantido" }
+        { id: 1, tipo: "Obrigações Governamentais", valorMensal: 600, taxaEsperada: 2.5, desvioPadrao: 2, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Baixo Risco" },
+        { id: 2, tipo: "PPR Defensivo", valorMensal: 200, taxaEsperada: 3, desvioPadrao: 4, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Benefícios Fiscais" },
+        { id: 3, tipo: "Depósitos a Prazo", valorMensal: 200, taxaEsperada: 1.5, desvioPadrao: 1, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Capital Garantido" }
     ],
     moderado: [
-        { id: 1, tipo: "ETF Global (VWCE)", valorMensal: 500, taxaEsperada: 7, desvioPadrao: 15, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Diversificação Global" },
-        { id: 2, tipo: "Imobiliário (REITs)", valorMensal: 300, taxaEsperada: 5, desvioPadrao: 10, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Rendimento Passivo" },
-        { id: 3, tipo: "PPR Equilibrado", valorMensal: 200, taxaEsperada: 5.5, desvioPadrao: 8, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Crescimento e Segurança" }
+        { id: 1, tipo: "ETF Global (VWCE)", valorMensal: 500, taxaEsperada: 7, desvioPadrao: 16, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Diversificação Global" },
+        { id: 2, tipo: "Imobiliário (REITs)", valorMensal: 300, taxaEsperada: 5, desvioPadrao: 12, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Rendimento Passivo" },
+        { id: 3, tipo: "PPR Equilibrado", valorMensal: 200, taxaEsperada: 5.5, desvioPadrao: 10, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Crescimento e Segurança" }
     ],
     agressivo: [
         { id: 1, tipo: "ETF Global (VWCE)", valorMensal: 600, taxaEsperada: 8, desvioPadrao: 18, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Máximo Crescimento" },
-        { id: 2, tipo: "Ações de Tecnologia (QQQ)", valorMensal: 250, taxaEsperada: 12, desvioPadrao: 25, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Alto Potencial" },
+        { id: 2, tipo: "Ações de Tecnologia (QQQ)", valorMensal: 250, taxaEsperada: 12, desvioPadrao: 28, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Alto Potencial" },
         { id: 3, tipo: "Criptomoedas (BTC/ETH)", valorMensal: 150, taxaEsperada: 15, desvioPadrao: 50, dataInicio: "2025-01-01", dataFim: "2055-01-01", descricao: "Elevado Risco/Retorno" }
     ]
 };
@@ -288,12 +298,90 @@ const investmentTemplates = {
 function aplicarTemplateInvestimento(nomeTemplate) {
     if (!investmentTemplates[nomeTemplate]) return;
 
-    dadosApp.depositosDiversificados = JSON.parse(JSON.stringify(investmentTemplates[nomeTemplate]));
+    const templateDeposits = JSON.parse(JSON.stringify(investmentTemplates[nomeTemplate]));
+
+    // Se já existirem depósitos, perguntar ao utilizador
+    if (dadosApp.depositosDiversificados.length > 0 && confirm("Deseja adicionar os depósitos do template à sua lista existente? \n\nOK = Adicionar \nCancelar = Substituir a lista atual")) {
+        // Adicionar aos existentes
+        const maxId = Math.max(0, ...dadosApp.depositosDiversificados.map(d => d.id));
+        templateDeposits.forEach((dep, index) => {
+            // Garantir IDs únicos
+            dep.id = maxId + 1 + index;
+        });
+        dadosApp.depositosDiversificados.push(...templateDeposits);
+    } else {
+        // Substituir
+        dadosApp.depositosDiversificados = templateDeposits;
+    }
+
     atualizarTabelaDepositos();
     salvarDadosNoLocalStorage();
     calcularResultados();
+
+    // Resetar o seletor para o valor padrão para evitar reaplicação acidental
+    document.getElementById('investmentTemplate').value = "";
 }
 
+function salvarTemplatePersonalizado() {
+    const nomeTemplate = prompt("Digite um nome para o seu novo template de investimentos:");
+    if (!nomeTemplate || nomeTemplate.trim() === '') {
+        alert("O nome do template não pode estar vazio.");
+        return;
+    }
+
+    const nomeNormalizado = nomeTemplate.trim().toLowerCase();
+    if (investmentTemplates[nomeNormalizado]) {
+        alert("Já existe um template com esse nome. Por favor, escolha outro.");
+        return;
+    }
+
+    if (dadosApp.depositosDiversificados.length === 0) {
+        alert("Não existem depósitos na lista para salvar como um template.");
+        return;
+    }
+
+    // Clonar os depósitos atuais para o novo template
+    const novoTemplate = JSON.parse(JSON.stringify(dadosApp.depositosDiversificados));
+
+    // Adicionar ao objeto de templates em memória
+    investmentTemplates[nomeNormalizado] = novoTemplate;
+
+    // Guardar nos templates personalizados no localStorage
+    const customTemplates = JSON.parse(localStorage.getItem('customInvestmentTemplates')) || {};
+    customTemplates[nomeNormalizado] = novoTemplate;
+    localStorage.setItem('customInvestmentTemplates', JSON.stringify(customTemplates));
+
+    // Atualizar a lista dropdown
+    carregarTemplatesPersonalizados();
+
+    alert(`Template "${nomeTemplate}" salvo com sucesso!`);
+}
+
+function carregarTemplatesPersonalizados() {
+    const customTemplates = JSON.parse(localStorage.getItem('customInvestmentTemplates')) || {};
+    const optgroup = document.getElementById('customTemplatesOptgroup');
+    if (!optgroup) return;
+
+    optgroup.innerHTML = ''; // Limpar para evitar duplicados
+    let hasCustomTemplates = false;
+
+    for (const nomeTemplate in customTemplates) {
+        if (Object.hasOwnProperty.call(customTemplates, nomeTemplate)) {
+            hasCustomTemplates = true;
+            // Adicionar ao objeto de templates em memória se ainda não existir
+            if (!investmentTemplates[nomeTemplate]) {
+                investmentTemplates[nomeTemplate] = customTemplates[nomeTemplate];
+            }
+
+            // Adicionar à lista dropdown
+            const option = document.createElement('option');
+            option.value = nomeTemplate;
+            option.textContent = nomeTemplate.charAt(0).toUpperCase() + nomeTemplate.slice(1); // Capitalize
+            optgroup.appendChild(option);
+        }
+    }
+    optgroup.hidden = !hasCustomTemplates;
+}
 function configurarEventListeners() {
     const mainContainer = document.querySelector('main.container');
     
@@ -305,6 +393,7 @@ function configurarEventListeners() {
     document.getElementById('btnDownloadPDF').addEventListener('click', gerarPDF);
     document.getElementById('btnExportarDados').addEventListener('click', exportarDados);
     document.getElementById('btnImportarDados').addEventListener('click', importarDados);
+    document.getElementById('btnSalvarTemplate').addEventListener('click', salvarTemplatePersonalizado);
 
     // Depósitos
     document.getElementById('btnAdicionarDeposito').addEventListener('click', mostrarFormDeposito);
@@ -356,11 +445,18 @@ function configurarEventListeners() {
 
 // --- Inicialização da Aplicação ---
 
-function inicializarApp() {
-    carregarDadosDoLocalStorage();
-    configurarEventListeners();
-    popularDadosIniciais();
-    calcularResultados();
+async function inicializarApp() {
+    showLoader();
+    try {
+        carregarDadosDoLocalStorage();
+        configurarEventListeners();
+        popularDadosIniciais();
+        carregarTemplatesPersonalizados(); // Carregar templates guardados
+        await calcularResultados();
+        await calcularResultadosMonteCarlo();
+    } finally {
+        hideLoader();
+    }
 }
 
 document.addEventListener('DOMContentLoaded', inicializarApp);

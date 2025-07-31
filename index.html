@@ -10,6 +10,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
+    <div id="loader" class="loader-overlay hidden">
+        <div class="loader"></div>
+    </div>
     <header class="header">
         <div class="container">
             <h1>Calculadora FIRE</h1>
@@ -20,44 +23,84 @@
     <main class="container">
         <section class="card section">
             <div class="card__header">
-                <h2>Dados Básicos</h2>
+                <h2>Dados Básicos
+                    <span class="tooltip-container">
+                        <span class="tooltip-icon">i</span>
+                        <span class="tooltip-text">Esta secção contém os pressupostos fundamentais para a simulação. Altere estes valores para refletir a sua realidade e objetivos.</span>
+                    </span>
+                </h2>
             </div>
             <div class="card__body">
                 <form id="formDadosBasicos">
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="taxaRetirada" class="form-label">Taxa de Retirada Segura (%)</label>
+                            <label for="taxaRetirada" class="form-label">Taxa de Retirada Segura (%)
+                                <span class="tooltip-container">
+                                    <span class="tooltip-icon">i</span>
+                                    <span class="tooltip-text">A percentagem do seu património que planeia retirar anualmente na reforma. Tradicionalmente, 4% é um valor comum.</span>
+                                </span>
+                            </label>
                             <div class="slider-container">
                                 <input type="range" id="taxaRetirada" name="taxaRetirada" min="2" max="6" step="0.1" value="4" class="slider">
                                 <span id="taxaRetiradaValue">4%</span>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="inflacaoAnual" class="form-label">Inflação Anual Estimada (%)</label>
+                            <label for="inflacaoAnual" class="form-label">Inflação Anual Estimada (%)
+                                <span class="tooltip-container">
+                                    <span class="tooltip-icon">i</span>
+                                    <span class="tooltip-text">A taxa de inflação média que espera ao longo do tempo. Isto é usado para calcular o valor real do seu dinheiro no futuro.</span>
+                                </span>
+                            </label>
                             <input type="number" id="inflacaoAnual" name="inflacaoAnual" value="2" min="0" max="10" step="0.1" class="form-control">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="idadeAtual" class="form-label">Idade Atual</label>
+                            <label for="idadeAtual" class="form-label">Idade Atual
+                                <span class="tooltip-container">
+                                    <span class="tooltip-icon">i</span>
+                                    <span class="tooltip-text">A sua idade atual. Isto serve como ponto de partida para a simulação.</span>
+                                </span>
+                            </label>
                             <input type="number" id="idadeAtual" name="idadeAtual" value="30" min="18" max="90" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for="idadeReforma" class="form-label">Simular até à Idade</label>
+                            <label for="idadeReforma" class="form-label">Simular até à Idade
+                                <span class="tooltip-container">
+                                    <span class="tooltip-icon">i</span>
+                                    <span class="tooltip-text">A idade em que pretende que a simulação termine. Pode ser a sua idade de reforma desejada.</span>
+                                </span>
+                            </label>
                             <input type="number" id="idadeReforma" name="idadeReforma" value="65" min="18" max="100" class="form-control">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="rendimentoAnual" class="form-label">Rendimento Anual (€)</label>
+                            <label for="rendimentoAnual" class="form-label">Rendimento Anual (€)
+                                <span class="tooltip-container">
+                                    <span class="tooltip-icon">i</span>
+                                    <span class="tooltip-text">O seu rendimento anual bruto. Este valor não é usado diretamente nos cálculos de património, mas é útil para referência.</span>
+                                </span>
+                            </label>
                             <input type="number" id="rendimentoAnual" name="rendimentoAnual" value="36000" min="0" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for="despesasAnuais" class="form-label">Despesas Anuais (€)</label>
+                            <label for="despesasAnuais" class="form-label">Despesas Anuais (€)
+                                <span class="tooltip-container">
+                                    <span class="tooltip-icon">i</span>
+                                    <span class="tooltip-text">As suas despesas anuais essenciais (custo de vida). Este é um dos valores mais importantes para calcular o seu número FIRE.</span>
+                                </span>
+                            </label>
                             <input type="number" id="despesasAnuais" name="despesasAnuais" value="24000" min="0" class="form-control">
                         </div>
                         <div class="form-group">
-                            <label for="valorInvestido" class="form-label">Valor Já Investido (€)</label>
+                            <label for="valorInvestido" class="form-label">Valor Já Investido (€)
+                                <span class="tooltip-container">
+                                    <span class="tooltip-icon">i</span>
+                                    <span class="tooltip-text">O montante total que já tem investido. Este é o ponto de partida do seu património.</span>
+                                </span>
+                            </label>
                             <input type="number" id="valorInvestido" name="valorInvestido" value="50000" min="0" class="form-control">
                         </div>
                     </div>
@@ -67,7 +110,12 @@
 
         <section class="card section">
             <div class="card__header">
-                <h2>Depósitos Diversificados</h2>
+                <h2>Depósitos Diversificados
+                    <span class="tooltip-container">
+                        <span class="tooltip-icon">i</span>
+                        <span class="tooltip-text">Adicione aqui todos os seus investimentos mensais recorrentes. A calculadora usará a média ponderada da taxa de retorno para a simulação.</span>
+                    </span>
+                </h2>
             </div>
             <div class="card__body">
                 <div class="table-responsive">
@@ -77,6 +125,7 @@
                                 <th>Tipo Investimento</th>
                                 <th>Valor Mensal (€)</th>
                                 <th>Taxa Esperada (%)</th>
+                                <th>Desvio Padrão (%)</th>
                                 <th>Data Início</th>
                                 <th>Data Fim</th>
                                 <th>Descrição</th>
@@ -93,11 +142,15 @@
                         <label for="investmentTemplate" class="sr-only">Template de Investimento</label>
                         <select id="investmentTemplate" class="form-control">
                             <option value="">Escolher um template...</option>
-                            <option value="conservador">Conservador</option>
-                            <option value="moderado">Moderado</option>
-                            <option value="agressivo">Agressivo</option>
+                            <optgroup label="Padrão">
+                                <option value="conservador">Conservador</option>
+                                <option value="moderado">Moderado</option>
+                                <option value="agressivo">Agressivo</option>
+                            </optgroup>
+                            <optgroup label="Personalizados" id="customTemplatesOptgroup" hidden></optgroup>
                         </select>
                     </div>
+                    <button type="button" id="btnSalvarTemplate" class="btn btn--secondary">Salvar como Template</button>
                     <button type="button" id="btnAdicionarDeposito" class="btn btn--primary">Adicionar Depósito</button>
                     <div class="taxa-info">
                         <span>Taxa de Retorno Ponderada: </span>
@@ -108,33 +161,72 @@
                     <form>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="tipoInvestimento" class="form-label">Tipo de Investimento</label>
+                                <label for="tipoInvestimento" class="form-label">Tipo de Investimento
+                                    <span class="tooltip-container">
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">Ex: ETF Global, Ações, PPR, Cripto. Um nome que identifique este tipo de investimento.</span>
+                                    </span>
+                                </label>
                                 <input type="text" id="tipoInvestimento" class="form-control" required>
                             </div>
                             <div class="form-group">
-                                <label for="valorMensal" class="form-label">Valor Mensal (€)</label>
+                                <label for="valorMensal" class="form-label">Valor Mensal (€)
+                                    <span class="tooltip-container">
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">O montante que planeia investir neste ativo todos os meses.</span>
+                                    </span>
+                                </label>
                                 <input type="number" id="valorMensal" min="0" class="form-control" required>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="taxaEsperada" class="form-label">Taxa Esperada (%)</label>
+                                <label for="taxaEsperada" class="form-label">Taxa Esperada (%)
+                                    <span class="tooltip-container">
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">A taxa de retorno anual que espera para este ativo. Seja realista (ex: 7-8% para um ETF global).</span>
+                                    </span>
+                                </label>
                                 <input type="number" id="taxaEsperada" min="0" max="20" step="0.1" class="form-control" required>
                             </div>
                             <div class="form-group">
-                                <label for="dataInicio" class="form-label">Data Início</label>
-                                <input type="date" id="dataInicio" class="form-control" required>
+                                <label for="desvioPadrao" class="form-label">Desvio Padrão (%)
+                                    <span class="tooltip-container">
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">Mede a volatilidade do ativo. Um valor mais alto significa maior risco e incerteza. Ex: um ETF global pode ter 15-18%.</span>
+                                    </span>
+                                </label>
+                                <input type="number" id="desvioPadrao" min="0" max="50" step="0.1" class="form-control" value="15" required>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="dataFim" class="form-label">Data Fim</label>
-                                <input type="date" id="dataFim" class="form-control" required>
+                                <label for="dataInicio" class="form-label">Data Início
+                                    <span class="tooltip-container">
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">A data em que começa a fazer estes depósitos mensais.</span>
+                                    </span>
+                                </label>
+                                <input type="date" id="dataInicio" class="form-control" required>
                             </div>
                             <div class="form-group">
-                                <label for="descricaoInvestimento" class="form-label">Descrição</label>
-                                <input type="text" id="descricaoInvestimento" class="form-control">
+                                <label for="dataFim" class="form-label">Data Fim
+                                    <span class="tooltip-container">
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">A data em que planeia parar de fazer estes depósitos.</span>
+                                    </span>
+                                </label>
+                                <input type="date" id="dataFim" class="form-control" required>
                             </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="descricaoInvestimento" class="form-label">Descrição
+                                <span class="tooltip-container">
+                                    <span class="tooltip-icon">i</span>
+                                    <span class="tooltip-text">Uma breve descrição para sua referência (ex: o nome do ETF como VWCE).</span>
+                                </span>
+                            </label>
+                            <input type="text" id="descricaoInvestimento" class="form-control">
                         </div>
                         <div class="form-actions">
                             <button type="button" id="btnSalvarDeposito" class="btn btn--primary">Salvar</button>
@@ -147,7 +239,12 @@
 
         <section class="card section">
             <div class="card__header">
-                <h2>Eventos Financeiros Únicos</h2>
+                <h2>Eventos Financeiros Únicos
+                    <span class="tooltip-container">
+                        <span class="tooltip-icon">i</span>
+                        <span class="tooltip-text">Registe aqui entradas ou saídas de dinheiro que acontecem apenas uma vez, como uma herança, um bónus grande ou a entrada para uma casa.</span>
+                    </span>
+                </h2>
             </div>
             <div class="card__body">
                 <div class="table-responsive">
@@ -173,11 +270,21 @@
                     <form>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="anoEvento" class="form-label">Ano</label>
+                                <label for="anoEvento" class="form-label">Ano
+                                    <span class="tooltip-container">
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">O ano em que este evento financeiro único irá ocorrer.</span>
+                                    </span>
+                                </label>
                                 <input type="number" id="anoEvento" min="2023" class="form-control" required>
                             </div>
                              <div class="form-group">
-                                <label for="mesEvento" class="form-label">Mês</label>
+                                <label for="mesEvento" class="form-label">Mês
+                                    <span class="tooltip-container">
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">O mês em que este evento financeiro único irá ocorrer.</span>
+                                    </span>
+                                </label>
                                 <select id="mesEvento" class="form-control">
                                     <option value="1">Janeiro</option>
                                     <option value="2">Fevereiro</option>
@@ -196,18 +303,33 @@
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="tipoEvento" class="form-label">Tipo</label>
+                                <label for="tipoEvento" class="form-label">Tipo
+                                    <span class="tooltip-container">
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">"Depósito" para uma entrada de dinheiro (ex: herança, bónus). "Levantamento" para uma saída (ex: compra de carro, viagem).</span>
+                                    </span>
+                                </label>
                                 <select id="tipoEvento" class="form-control">
                                     <option value="Depósito">Depósito</option>
                                     <option value="Levantamento">Levantamento</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="valorEvento" class="form-label">Valor (€)</label>
+                                <label for="valorEvento" class="form-label">Valor (€)
+                                    <span class="tooltip-container">
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">O montante total deste evento financeiro.</span>
+                                    </span>
+                                </label>
                                 <input type="number" id="valorEvento" min="0" class="form-control" required>
                             </div>
                             <div class="form-group">
-                                <label for="descricaoEvento" class="form-label">Descrição</label>
+                                <label for="descricaoEvento" class="form-label">Descrição
+                                    <span class="tooltip-container">
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">Uma breve descrição para sua referência (ex: "Entrada para casa nova").</span>
+                                    </span>
+                                </label>
                                 <input type="text" id="descricaoEvento" class="form-control">
                             </div>
                         </div>
@@ -222,7 +344,12 @@
 
         <section class="card section">
             <div class="card__header">
-                <h2>Eventos Financeiros Recorrentes</h2>
+                <h2>Eventos Financeiros Recorrentes
+                    <span class="tooltip-container">
+                        <span class="tooltip-icon">i</span>
+                        <span class="tooltip-text">Para entradas ou saídas de dinheiro que ocorrem com uma frequência diferente da mensal (ex: um bónus anual ou um seguro pago semestralmente).</span>
+                    </span>
+                </h2>
             </div>
             <div class="card__body">
                 <div class="table-responsive">
@@ -248,24 +375,44 @@
                     <form>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="anoInicioEvento" class="form-label">Ano Início</label>
+                                <label for="anoInicioEvento" class="form-label">Ano Início
+                                    <span class="tooltip-container">
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">O ano em que este evento recorrente começa a ter efeito.</span>
+                                    </span>
+                                </label>
                                 <input type="number" id="anoInicioEvento" min="2023" class="form-control" required>
                             </div>
                             <div class="form-group">
-                                <label for="anoFimEvento" class="form-label">Ano Fim</label>
+                                <label for="anoFimEvento" class="form-label">Ano Fim
+                                    <span class="tooltip-container">
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">O ano em que este evento recorrente deixa de ter efeito.</span>
+                                    </span>
+                                </label>
                                 <input type="number" id="anoFimEvento" min="2023" class="form-control" required>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="tipoEventoRecorrente" class="form-label">Tipo</label>
+                                <label for="tipoEventoRecorrente" class="form-label">Tipo
+                                    <span class="tooltip-container">
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">"Depósito" para uma entrada de dinheiro recorrente (ex: renda de um imóvel). "Levantamento" para uma saída (ex: subscrição anual).</span>
+                                    </span>
+                                </label>
                                 <select id="tipoEventoRecorrente" class="form-control">
                                     <option value="Depósito" selected>Depósito</option>
                                     <option value="Levantamento">Levantamento</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="periodicidadeEvento" class="form-label">Periodicidade</label>
+                                <label for="periodicidadeEvento" class="form-label">Periodicidade
+                                    <span class="tooltip-container">
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">A frequência com que este evento ocorre (Mensal, Trimestral, Semestral, Anual).</span>
+                                    </span>
+                                </label>
                                 <select id="periodicidadeEvento" class="form-control">
                                     <option value="Mensal">Mensal</option>
                                     <option value="Trimestral">Trimestral</option>
@@ -274,12 +421,22 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="valorPeriodoEvento" class="form-label">Valor/Período (€)</label>
+                                <label for="valorPeriodoEvento" class="form-label">Valor/Período (€)
+                                    <span class="tooltip-container">
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">O montante de dinheiro envolvido em cada ocorrência deste evento.</span>
+                                    </span>
+                                </label>
                                 <input type="number" id="valorPeriodoEvento" min="0" class="form-control" required>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="descricaoEventoRecorrente" class="form-label">Descrição</label>
+                            <label for="descricaoEventoRecorrente" class="form-label">Descrição
+                                <span class="tooltip-container">
+                                    <span class="tooltip-icon">i</span>
+                                    <span class="tooltip-text">Uma breve descrição para sua referência (ex: "Renda do apartamento").</span>
+                                </span>
+                            </label>
                             <input type="text" id="descricaoEventoRecorrente" class="form-control">
                         </div>
                         <div class="form-actions">
@@ -293,7 +450,12 @@
 
         <section class="card section">
             <div class="card__header">
-                <h2>Despesas Variáveis</h2>
+                <h2>Despesas Variáveis
+                    <span class="tooltip-container">
+                        <span class="tooltip-icon">i</span>
+                        <span class="tooltip-text">Adicione aqui despesas significativas que têm uma data de início e de fim, como o crédito da casa ou as despesas com a educação dos filhos.</span>
+                    </span>
+                </h2>
             </div>
             <div class="card__body">
                 <div class="table-responsive">
@@ -318,21 +480,41 @@
                     <form>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="descricaoDespesa" class="form-label">Descrição</label>
+                                <label for="descricaoDespesa" class="form-label">Descrição
+                                    <span class="tooltip-container">
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">Uma descrição para a despesa (ex: "Crédito Habitação", "Creche").</span>
+                                    </span>
+                                </label>
                                 <input type="text" id="descricaoDespesa" class="form-control" required>
                             </div>
                             <div class="form-group">
-                                <label for="valorMensalDespesa" class="form-label">Valor Mensal (€)</label>
+                                <label for="valorMensalDespesa" class="form-label">Valor Mensal (€)
+                                    <span class="tooltip-container">
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">O custo mensal desta despesa.</span>
+                                    </span>
+                                </label>
                                 <input type="number" id="valorMensalDespesa" min="0" class="form-control" required>
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="anoInicioDespesa" class="form-label">Ano Início</label>
+                                <label for="anoInicioDespesa" class="form-label">Ano Início
+                                    <span class="tooltip-container">
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">O ano em que esta despesa começa.</span>
+                                    </span>
+                                </label>
                                 <input type="number" id="anoInicioDespesa" min="2023" class="form-control" required>
                             </div>
                             <div class="form-group">
-                                <label for="anoFimDespesa" class="form-label">Ano Fim</label>
+                                <label for="anoFimDespesa" class="form-label">Ano Fim
+                                    <span class="tooltip-container">
+                                        <span class="tooltip-icon">i</span>
+                                        <span class="tooltip-text">O ano em que esta despesa termina.</span>
+                                    </span>
+                                </label>
                                 <input type="number" id="anoFimDespesa" min="2023" class="form-control" required>
                             </div>
                         </div>
@@ -347,7 +529,12 @@
 
         <section class="card section">
             <div class="card__header">
-                <h2>Resultados</h2>
+                <h2>Resultados
+                    <span class="tooltip-container">
+                        <span class="tooltip-icon">i</span>
+                        <span class="tooltip-text">Aqui são apresentados os principais resultados da simulação determinística, que assume que as taxas de retorno são constantes.</span>
+                    </span>
+                </h2>
             </div>
             <div class="card__body">
                 <div class="resultados-grid">
@@ -373,9 +560,25 @@
 
         <section id="resultadosMonteCarlo" class="card section hidden">
             <div class="card__header">
-                <h2>Resultados da Simulação de Monte Carlo</h2>
+                <h2>Resultados da Simulação de Monte Carlo
+                    <span class="tooltip-container">
+                        <span class="tooltip-icon">i</span>
+                        <span class="tooltip-text">Esta simulação testa a robustez do seu plano usando volatilidade. Executa o plano centenas de vezes com retornos variáveis para ver a probabilidade de sucesso.</span>
+                    </span>
+                </h2>
             </div>
             <div class="card__body">
+                <div class="form-row" style="margin-bottom: 24px;">
+                    <div class="form-group" style="max-width: 250px;">
+                        <label for="mcNumSimulacoes" class="form-label">Número de Simulações
+                            <span class="tooltip-container">
+                                <span class="tooltip-icon">i</span>
+                                <span class="tooltip-text">O número de vezes que a simulação será executada. Mais simulações dão um resultado estatisticamente mais robusto, mas demoram mais tempo. 1000 a 5000 é um bom intervalo.</span>
+                            </span>
+                        </label>
+                        <input type="number" id="mcNumSimulacoes" class="form-control" value="1000" min="100" max="10000" step="100">
+                    </div>
+                </div>
                 <div class="resultados-grid">
                     <div class="resultado-item">
                         <div class="resultado-label">Património (Pessimista - P10)</div>
@@ -402,7 +605,12 @@
 
         <section id="analiseSensibilidade" class="card section hidden">
             <div class="card__header">
-                <h2>Análise de Sensibilidade</h2>
+                <h2>Análise de Sensibilidade
+                    <span class="tooltip-container">
+                        <span class="tooltip-icon">i</span>
+                        <span class="tooltip-text">Esta análise mostra como a sua idade FIRE pode variar com pequenas alterações nos seus pressupostos de retorno e inflação.</span>
+                    </span>
+                </h2>
             </div>
             <div class="card__body">
                 <p>Esta análise mostra como a sua Idade FIRE pode variar com pequenas alterações nos seus pressupostos de retorno e inflação.</p>
@@ -425,7 +633,12 @@
         <div class="charts-container">
             <section class="card section">
                 <div class="card__header">
-                    <h2>Evolução Patrimonial</h2>
+                    <h2>Evolução Patrimonial
+                        <span class="tooltip-container">
+                            <span class="tooltip-icon">i</span>
+                            <span class="tooltip-text">Este gráfico mostra a projeção do crescimento do seu património ao longo do tempo, tanto em valor nominal (o valor real) como em valor real (ajustado à inflação).</span>
+                        </span>
+                    </h2>
                 </div>
 <div class="card__body">
                     <div class="chart-controls" style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
@@ -452,7 +665,12 @@
 
             <section class="card section">
                 <div class="card__header">
-                    <h2>Evolução das Despesas</h2>
+                    <h2>Evolução das Despesas
+                        <span class="tooltip-container">
+                            <span class="tooltip-icon">i</span>
+                            <span class="tooltip-text">Este gráfico mostra como as suas despesas totais (fixas + variáveis) evoluem ao longo do tempo, permitindo-lhe visualizar quando grandes despesas terminam.</span>
+                        </span>
+                    </h2>
                 </div>
                 <div class="card__body">
                     <!-- Contentor com altura fixa para resolver o problema do gráfico -->
@@ -465,7 +683,12 @@
 
         <section class="card section">
             <div class="card__header">
-                <h2>Distribuição de Ativos</h2>
+                <h2>Distribuição de Ativos
+                    <span class="tooltip-container">
+                        <span class="tooltip-icon">i</span>
+                        <span class="tooltip-text">Este gráfico mostra a percentagem que cada um dos seus depósitos mensais representa do total investido, dando-lhe uma visão da sua alocação de ativos.</span>
+                    </span>
+                </h2>
             </div>
             <div class="card__body">
                 <div class="chart-container" style="height: 400px; width: 100%;">
