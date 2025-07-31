@@ -15,6 +15,7 @@ function limparFormDeposito() {
     document.getElementById('tipoInvestimento').value = '';
     document.getElementById('valorMensal').value = '';
     document.getElementById('taxaEsperada').value = '';
+    document.getElementById('desvioPadrao').value = '15';
     document.getElementById('dataInicio').value = '';
     document.getElementById('dataFim').value = '';
     document.getElementById('descricaoInvestimento').value = '';
@@ -27,6 +28,7 @@ function preencherFormularioDeposito(deposito) {
     document.getElementById('tipoInvestimento').value = deposito.tipo;
     document.getElementById('valorMensal').value = deposito.valorMensal;
     document.getElementById('taxaEsperada').value = deposito.taxaEsperada;
+    document.getElementById('desvioPadrao').value = deposito.desvioPadrao;
     document.getElementById('dataInicio').value = deposito.dataInicio;
     document.getElementById('dataFim').value = deposito.dataFim;
     document.getElementById('descricaoInvestimento').value = deposito.descricao;
@@ -37,6 +39,7 @@ function getDadosFormularioDeposito() {
         tipo: document.getElementById('tipoInvestimento').value,
         valorMensal: parseFloat(document.getElementById('valorMensal').value) || 0,
         taxaEsperada: parseFloat(document.getElementById('taxaEsperada').value) || 0,
+        desvioPadrao: parseFloat(document.getElementById('desvioPadrao').value) || 0,
         dataInicio: document.getElementById('dataInicio').value,
         dataFim: document.getElementById('dataFim').value,
         descricao: document.getElementById('descricaoInvestimento').value
@@ -53,6 +56,7 @@ function atualizarTabelaDepositos() {
             <td>${deposito.tipo}</td>
             <td>€${deposito.valorMensal.toLocaleString()}</td>
             <td>${deposito.taxaEsperada}%</td>
+            <td>${deposito.desvioPadrao}%</td>
             <td>${new Date(deposito.dataInicio).toLocaleDateString('pt-PT')}</td>
             <td>${new Date(deposito.dataFim).toLocaleDateString('pt-PT')}</td>
             <td>${deposito.descricao}</td>
@@ -301,8 +305,18 @@ function mostrarMensagem(texto, tipo) {
     }, 5000);
 }
 
+function showLoader() {
+    document.getElementById('loader').classList.remove('hidden');
+}
+
+function hideLoader() {
+    document.getElementById('loader').classList.add('hidden');
+}
+
 export {
     popularDadosIniciais,
+    showLoader,
+    hideLoader,
     mostrarFormDeposito,
     esconderFormDeposito,
     preencherFormularioDeposito,
