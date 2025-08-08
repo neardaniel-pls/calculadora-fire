@@ -576,7 +576,7 @@
                                 <span class="tooltip-text">O número de vezes que a simulação será executada. Mais simulações dão um resultado estatisticamente mais robusto, mas demoram mais tempo. 1000 a 5000 é um bom intervalo.</span>
                             </span>
                         </label>
-                        <input type="number" id="mcNumSimulacoes" class="form-control" value="1000" min="100" max="10000" step="100">
+                        <input type="number" id="mcNumSimulacoes" class="form-control" value="2500" min="100" max="10000" step="100">
                     </div>
                 </div>
                 <div class="resultados-grid">
@@ -626,6 +626,32 @@
                             <!-- Os resultados da análise serão inseridos aqui -->
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </section>
+<section id="sequenceOfReturnsRisk" class="card section hidden">
+            <div class="card__header">
+                <h2>Análise de Risco de Sequência de Retornos
+                    <span class="tooltip-container">
+                        <span class="tooltip-icon">i</span>
+                        <span class="tooltip-text">Esta análise simula o impacto de uma crise de mercado no início da sua reforma para testar a robustez do seu plano.</span>
+                    </span>
+                </h2>
+            </div>
+            <div class="card__body">
+                <div class="form-row" style="margin-bottom: 24px;">
+                    <div class="form-group">
+                        <label for="srrDuration" class="form-label">Duração do Cenário (Anos)</label>
+                        <input type="number" id="srrDuration" class="form-control" value="5" min="1" max="20">
+                    </div>
+                    <div class="form-group">
+                        <label for="srrReturn" class="form-label">Retorno Anual no Cenário (%)</label>
+                        <input type="number" id="srrReturn" class="form-control" value="-10" max="100">
+                    </div>
+                </div>
+                <button type="button" id="btnSimularSRR" class="btn btn--primary">Simular Risco de Sequência</button>
+                <div class="chart-container" style="height: 400px; width: 100%; margin-top: 24px;">
+                    <canvas id="chartSequenceOfReturns"></canvas>
                 </div>
             </div>
         </section>
