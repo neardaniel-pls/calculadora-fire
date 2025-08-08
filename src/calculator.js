@@ -255,7 +255,7 @@ function executarSimulacaoUnica(dados) {
  * @param {number} numSimulacoes - O número de simulações a serem executadas.
  * @returns {object} Um objeto com os resultados da simulação de Monte Carlo.
  */
-function simularMonteCarlo(numSimulacoes = 1000) {
+function simularMonteCarlo(numSimulacoes = 2500) {
     const resultadosFinais = [];
     for (let i = 0; i < numSimulacoes; i++) {
         resultadosFinais.push(executarSimulacaoUnica(dadosApp));
@@ -282,4 +282,49 @@ function simularMonteCarlo(numSimulacoes = 1000) {
 }
 
 
-export { simularEvolucaoPatrimonial, simularMonteCarlo };
+function simularSequenceOfReturnsRisk(srrDuration, srrReturn) {
+    const { dadosBasicos, depositosDiversificados } = dadosApp;
+    const anoBase = new Date().getFullYear();
+    const anosDeSimulacao = dadosBasicos.idadeReforma - dadosBasicos.idadeAtual;
+    const ANO_MAXIMO_SIMULACAO = Math.max(anosDeSimulacao, 1);
+
+    let totalContribuicaoMensal = 0;
+    let somaPonderada = 0;
+    depositosDiversificados.forEach(dep => {
+        totalContribuicaoMensal += dep.valorMensal;
+        somaPonderada += dep.valorMensal * (dep.taxaEsperada / 100);
+    });
+    const taxaRetornoNominalAnual = totalContribuicaoMensal > 0 ? somaPonderada / totalContribuicaoMensal : 0.07;
+    const taxaRetornoStressAnual = srrReturn / 100;
+
+    let valorAtual = dadosBasicos.valorInvestido;
+    const historicoPatrimonialAnual = [{
+        ano: anoBase,
+        valorNominal: valorAtual,
+    }];
+
+    for (let i = 1; i <= ANO_MAXIMO_SIMULACAO; i++) {
+        const anoCorrente = anoBase + i;
+        
+        const taxaDeRetornoDoAno = i <= srrDuration ? taxaRetornoStressAnual : taxaRetornoNominalAnual;
+        
+        const jurosAnuais = valorAtual * taxaDeRetornoDoAno;
+        
+        const contribuicaoAnual = totalContribuicaoMensal * 12;
+        const fluxoEventosRecorrentes = fluxoRecorrenteAnual(anoCorrente);
+        const fluxoEventosUnicos = fluxoUnicoAnual(anoCorrente);
+        const fluxoDespesasVariaveis = fluxoVariavelAnual(anoCorrente);
+
+        const fluxoCaixaAnual = contribuicaoAnual + fluxoEventosRecorrentes + fluxoEventosUnicos + fluxoDespesasVariaveis;
+
+        valorAtual += jurosAnuais + fluxoCaixaAnual;
+
+        historicoPatrimonialAnual.push({
+            ano: anoCorrente,
+            valorNominal: valorAtual,
+        });
+    }
+
+    return { historicoPatrimonialAnual };
+}
+export { simularEvolucaoPatrimonial, simularMonteCarlo, simularSequenceOfReturnsRisk };

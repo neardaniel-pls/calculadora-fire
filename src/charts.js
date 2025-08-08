@@ -385,4 +385,67 @@ function criarGraficoMonteCarloDistribution(resultados) {
 }
 
 
-export { atualizarGraficos, criarGraficoMonteCarloDistribution };
+let chartSequenceOfReturns = null;
+
+function criarGraficoSequenceOfReturns(originalData, stressData) {
+    const ctx = document.getElementById('chartSequenceOfReturns').getContext('2d');
+
+    if (chartSequenceOfReturns) {
+        chartSequenceOfReturns.destroy();
+    }
+
+    const labels = originalData.map(d => d.ano);
+    const originalValues = originalData.map(d => d.valorNominal);
+    const stressValues = stressData.map(d => d.valorNominal);
+
+    chartSequenceOfReturns = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Projeção Original',
+                data: originalValues,
+                borderColor: '#1FB8CD',
+                backgroundColor: 'rgba(31, 184, 205, 0.1)',
+                tension: 0.1,
+                fill: true
+            }, {
+                label: 'Projeção com Stress Test',
+                data: stressValues,
+                borderColor: '#B4413C',
+                backgroundColor: 'rgba(180, 65, 60, 0.1)',
+                tension: 0.1,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '€' + value.toLocaleString();
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top'
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: €${Math.round(context.raw).toLocaleString()}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+export { atualizarGraficos, criarGraficoMonteCarloDistribution, criarGraficoSequenceOfReturns };

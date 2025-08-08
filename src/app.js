@@ -31,8 +31,8 @@ import {
     hideLoader
 } from './ui.js';
 
-import { simularEvolucaoPatrimonial, simularMonteCarlo } from './calculator.js';
-import { atualizarGraficos, criarGraficoMonteCarloDistribution } from './charts.js';
+import { simularEvolucaoPatrimonial, simularMonteCarlo, simularSequenceOfReturnsRisk } from './calculator.js';
+import { atualizarGraficos, criarGraficoMonteCarloDistribution, criarGraficoSequenceOfReturns } from './charts.js';
 import { gerarPDF } from './pdf.js';
 
 // --- Funções de Lógica de Negócio (Handlers) ---
@@ -245,6 +245,26 @@ function importarDados() {
     input.click();
 }
 
+async function calcularSRR() {
+    showLoader();
+    await new Promise(resolve => setTimeout(resolve, 50)); // Allow UI to update
+
+    try {
+        const srrDuration = parseInt(document.getElementById('srrDuration').value, 10);
+        const srrReturn = parseFloat(document.getElementById('srrReturn').value);
+
+        const originalResults = simularEvolucaoPatrimonial();
+        const stressResults = simularSequenceOfReturnsRisk(srrDuration, srrReturn);
+
+        const srrSection = document.getElementById('sequenceOfReturnsRisk');
+        srrSection.classList.remove('hidden');
+
+        criarGraficoSequenceOfReturns(originalResults.historicoPatrimonialAnual, stressResults.historicoPatrimonialAnual);
+    } finally {
+        hideLoader();
+    }
+}
+
 // --- Configuração de Event Listeners ---
 
 function handleTableActions(event) {
@@ -441,6 +461,8 @@ function configurarEventListeners() {
            calcularResultados();
        });
    });
+
+    document.getElementById('btnSimularSRR').addEventListener('click', calcularSRR);
 }
 
 // --- Inicialização da Aplicação ---
