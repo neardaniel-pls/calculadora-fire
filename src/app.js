@@ -34,6 +34,7 @@ import {
 import { simularEvolucaoPatrimonial, simularMonteCarlo, simularSequenceOfReturnsRisk } from './calculator.js';
 import { atualizarGraficos, criarGraficoMonteCarloDistribution, criarGraficoSequenceOfReturns } from './charts.js';
 import { gerarPDF } from './pdf.js';
+import { setLanguage, translate, translateUI } from './i18n.js';
 
 // --- Funções de Lógica de Negócio (Handlers) ---
 
@@ -465,17 +466,45 @@ function configurarEventListeners() {
     document.getElementById('btnSimularSRR').addEventListener('click', calcularSRR);
 }
 
+// --- Language Switcher ---
+function setupLanguageSwitcher() {
+    const langSelector = document.getElementById('lang-selector');
+    const langDropdown = document.getElementById('lang-dropdown');
+
+    langSelector.addEventListener('click', () => {
+        langDropdown.classList.toggle('hidden');
+    });
+
+    document.querySelectorAll('.lang-option').forEach(option => {
+        option.addEventListener('click', (e) => {
+            e.preventDefault();
+            const lang = e.currentTarget.dataset.lang;
+            setLanguage(lang);
+            langDropdown.classList.add('hidden');
+        });
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!langSelector.contains(e.target) && !langDropdown.contains(e.target)) {
+            langDropdown.classList.add('hidden');
+        }
+    });
+}
+
 // --- Inicialização da Aplicação ---
 
 async function inicializarApp() {
     showLoader();
     try {
+        setupLanguageSwitcher();
+        await setLanguage('pt'); // Set default language
         carregarDadosDoLocalStorage();
         configurarEventListeners();
         popularDadosIniciais();
         carregarTemplatesPersonalizados(); // Carregar templates guardados
         await calcularResultados();
         await calcularResultadosMonteCarlo();
+        translateUI();
     } finally {
         hideLoader();
     }
