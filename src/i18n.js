@@ -10,7 +10,7 @@ let currentLanguage = 'pt';
 
 async function loadTranslations(lang) {
     try {
-        const response = await fetch(`../locales/${lang}.json`);
+        const response = await fetch(`./locales/${lang}.json`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
