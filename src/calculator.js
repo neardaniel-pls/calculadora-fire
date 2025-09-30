@@ -303,10 +303,11 @@ function simularSequenceOfReturnsRisk(srrDuration, srrReturn) {
         valorNominal: valorAtual,
     }];
 
-    for (let i = 1; i <= ANO_MAXIMO_SIMULACAO; i++) {
+    for (let i = 0; i < ANO_MAXIMO_SIMULACAO; i++) {
         const anoCorrente = anoBase + i;
         
-        const taxaDeRetornoDoAno = i <= srrDuration ? taxaRetornoStressAnual : taxaRetornoNominalAnual;
+        // A taxa de stress aplica-se nos primeiros 'srrDuration' anos.
+        const taxaDeRetornoDoAno = i < srrDuration ? taxaRetornoStressAnual : taxaRetornoNominalAnual;
         
         const jurosAnuais = valorAtual * taxaDeRetornoDoAno;
         
