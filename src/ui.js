@@ -1,9 +1,10 @@
 import { dadosApp, estadoEdicao, salvarDadosNoLocalStorage } from './state.js';
+import { translate } from './i18n.js';
 
 // Funções de UI para Depósitos
 function mostrarFormDeposito(isEditing = false) {
     document.getElementById('formNovoDeposito').classList.remove('hidden');
-    document.getElementById('btnSalvarDeposito').textContent = isEditing ? 'Atualizar' : 'Salvar';
+    document.getElementById('btnSalvarDeposito').textContent = isEditing ? translate('update') : translate('save');
 }
 
 function esconderFormDeposito() {
@@ -20,7 +21,7 @@ function limparFormDeposito() {
     document.getElementById('dataFim').value = '';
     document.getElementById('descricaoInvestimento').value = '';
     estadoEdicao.deposito = null;
-    document.getElementById('btnSalvarDeposito').textContent = 'Salvar';
+    document.getElementById('btnSalvarDeposito').textContent = translate('save');
 }
 
 
@@ -61,8 +62,8 @@ function atualizarTabelaDepositos() {
             <td>${new Date(deposito.dataFim).toLocaleDateString('pt-PT')}</td>
             <td>${deposito.descricao}</td>
             <td>
-                <button class="btn-action btn-edit" data-action="editar" data-id="${deposito.id}">Editar</button>
-                <button class="btn-action btn-remove" data-action="remover" data-id="${deposito.id}">Remover</button>
+                <button class="btn-action btn-edit" data-action="editar" data-id="${deposito.id}">${translate('edit')}</button>
+                <button class="btn-action btn-remove" data-action="remover" data-id="${deposito.id}">${translate('remove')}</button>
             </td>
         `;
         tbody.appendChild(row);
@@ -88,7 +89,7 @@ function calcularTaxaRetornoPonderada() {
 // Funções de UI para Eventos Únicos
 function mostrarFormEventoUnico(isEditing = false) {
     document.getElementById('formNovoEventoUnico').classList.remove('hidden');
-    document.getElementById('btnSalvarEventoUnico').textContent = isEditing ? 'Atualizar' : 'Salvar';
+    document.getElementById('btnSalvarEventoUnico').textContent = isEditing ? translate('update') : translate('save');
 }
 
 function esconderFormEventoUnico() {
@@ -103,7 +104,7 @@ function limparFormEventoUnico() {
     document.getElementById('valorEvento').value = '';
     document.getElementById('descricaoEvento').value = '';
     estadoEdicao.eventoUnico = null;
-    document.getElementById('btnSalvarEventoUnico').textContent = 'Salvar';
+    document.getElementById('btnSalvarEventoUnico').textContent = translate('save');
 }
 
 
@@ -139,8 +140,8 @@ function atualizarTabelaEventosUnicos() {
             <td>€${evento.valor.toLocaleString()}</td>
             <td>${evento.descricao}</td>
             <td>
-                <button class="btn-action btn-edit" data-action="editar" data-id="${evento.id}">Editar</button>
-                <button class="btn-action btn-remove" data-action="remover" data-id="${evento.id}">Remover</button>
+                <button class="btn-action btn-edit" data-action="editar" data-id="${evento.id}">${translate('edit')}</button>
+                <button class="btn-action btn-remove" data-action="remover" data-id="${evento.id}">${translate('remove')}</button>
             </td>
         `;
         tbody.appendChild(row);
@@ -150,7 +151,7 @@ function atualizarTabelaEventosUnicos() {
 // Funções de UI para Eventos Recorrentes
 function mostrarFormEventoRecorrente(isEditing = false) {
     document.getElementById('formNovoEventoRecorrente').classList.remove('hidden');
-    document.getElementById('btnSalvarEventoRecorrente').textContent = isEditing ? 'Atualizar' : 'Salvar';
+    document.getElementById('btnSalvarEventoRecorrente').textContent = isEditing ? translate('update') : translate('save');
 }
 
 function esconderFormEventoRecorrente() {
@@ -166,7 +167,7 @@ function limparFormEventoRecorrente() {
     document.getElementById('valorPeriodoEvento').value = '';
     document.getElementById('descricaoEventoRecorrente').value = '';
     estadoEdicao.eventoRecorrente = null;
-    document.getElementById('btnSalvarEventoRecorrente').textContent = 'Salvar';
+    document.getElementById('btnSalvarEventoRecorrente').textContent = translate('save');
 }
 
 
@@ -204,8 +205,8 @@ function atualizarTabelaEventosRecorrentes() {
             <td>€${evento.valorPeriodo.toLocaleString()}</td>
             <td>${evento.descricao}</td>
             <td>
-                <button class="btn-action btn-edit" data-action="editar" data-id="${evento.id}">Editar</button>
-                <button class="btn-action btn-remove" data-action="remover" data-id="${evento.id}">Remover</button>
+                <button class="btn-action btn-edit" data-action="editar" data-id="${evento.id}">${translate('edit')}</button>
+                <button class="btn-action btn-remove" data-action="remover" data-id="${evento.id}">${translate('remove')}</button>
             </td>
             `;
         tbody.appendChild(row);
@@ -215,7 +216,7 @@ function atualizarTabelaEventosRecorrentes() {
 // Funções de UI para Despesas Variáveis
 function mostrarFormDespesa(isEditing = false) {
     document.getElementById('formNovaDespesa').classList.remove('hidden');
-    document.getElementById('btnSalvarDespesa').textContent = isEditing ? 'Atualizar' : 'Salvar';
+    document.getElementById('btnSalvarDespesa').textContent = isEditing ? translate('update') : translate('save');
 }
 
 function esconderFormDespesa() {
@@ -229,7 +230,7 @@ function limparFormDespesa() {
     document.getElementById('anoInicioDespesa').value = '';
     document.getElementById('anoFimDespesa').value = '';
     estadoEdicao.despesa = null;
-    document.getElementById('btnSalvarDespesa').textContent = 'Salvar';
+    document.getElementById('btnSalvarDespesa').textContent = translate('save');
 }
 
 
@@ -261,8 +262,8 @@ function atualizarTabelaDespesasVariaveis() {
             <td>${despesa.anoInicio}</td>
             <td>${despesa.anoFim}</td>
             <td>
-                <button class="btn-action btn-edit" data-action="editar" data-id="${despesa.id}">Editar</button>
-                <button class="btn-action btn-remove" data-action="remover" data-id="${despesa.id}">Remover</button>
+                <button class="btn-action btn-edit" data-action="editar" data-id="${despesa.id}">${translate('edit')}</button>
+                <button class="btn-action btn-remove" data-action="remover" data-id="${despesa.id}">${translate('remove')}</button>
             </td>
         `;
         tbody.appendChild(row);

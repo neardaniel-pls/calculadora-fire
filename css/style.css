@@ -1039,3 +1039,50 @@ select.form-control {
 .hidden {
     display: none;
 }
+/* Language Switcher */
+.language-switcher {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 1000;
+}
+
+.lang-selector {
+    background-color: var(--color-background);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    padding: 8px 12px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.lang-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    padding: 8px;
+    margin-top: 4px;
+}
+
+.lang-dropdown a {
+    display: block;
+    padding: 8px 12px;
+    color: var(--color-text);
+    text-decoration: none;
+    border-radius: var(--border-radius-sm);
+}
+
+.lang-dropdown a:hover {
+    background-color: var(--color-primary-light);
+}
+
+.lang-dropdown.hidden {
+    display: none;
+}
