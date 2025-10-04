@@ -94,6 +94,8 @@
     "monthlyValueExpenseTooltip": "The monthly cost of this expense.",
     "startYearExpenseTooltip": "The year this expense begins.",
     "endYearExpenseTooltip": "The year this expense ends.",
+    "startYear": "Start Year",
+    "endYear": "End Year",
     "results": "Results",
     "resultsTooltip": "Here are the main results of the deterministic simulation, which assumes constant rates of return.",
     "fireValueRequired": "FIRE Value Required",
@@ -146,5 +148,15 @@
     "successTemplateSaved": "Template \"{templateName}\" saved successfully!",
     "successDataImported": "Data imported successfully!",
     "errorInvalidDataFile": "Invalid data file.",
-    "errorReadingDataFile": "Error reading data file."
+    "errorReadingDataFile": "Error reading data file.",
+    "basicDataInfo": "This section covers the fundamental assumptions for your FIRE projection. Set your age, desired safe withdrawal rate, and current financial data to get started.",
+    "diversifiedDepositsInfo": "List your recurring monthly investments here. You can add different types of assets, such as ETFs, stocks, or pension plans, each with its own expected rate of return and standard deviation for Monte Carlo simulations.",
+    "uniqueFinancialEventsInfo": "Record unique financial events that will impact your assets, such as an inheritance, a large bonus, or a down payment for a house. They can be deposits or withdrawals.",
+    "recurringFinancialEventsInfo": "Add financial events that occur regularly over a certain period, but not monthly. For example, an annual bonus, an insurance payment, or rental income from a property.",
+    "variableExpensesInfo": "This section allows you to add significant expenses that are not part of your base annual budget but occur over a specific period. For example, a car loan or a child's university tuition.",
+    "resultsInfo": "This section displays the main results of the deterministic simulation, which assumes constant rates of return.",
+    "monteCarloSimulationInfo": "This simulation tests the robustness of your plan using market volatility. It runs the plan thousands of times with variable returns to assess the probability of success.",
+    "assetEvolutionInfo": "This chart shows the projected growth of your assets over time, in both nominal value (the actual amount) and real value (adjusted for inflation).",
+    "expenseEvolutionInfo": "This chart shows how your total expenses (base + variable) evolve over time, allowing you to visualize when large expenses end.",
+    "assetDistributionInfo": "This chart shows the percentage that each of your monthly deposits represents of the total invested, giving you a clear view of your asset allocation."
 }

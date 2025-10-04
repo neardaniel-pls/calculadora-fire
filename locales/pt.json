@@ -94,6 +94,8 @@
     "monthlyValueExpenseTooltip": "O custo mensal desta despesa.",
     "startYearExpenseTooltip": "O ano em que esta despesa começa.",
     "endYearExpenseTooltip": "O ano em que esta despesa termina.",
+    "startYear": "Ano Início",
+    "endYear": "Ano Fim",
     "results": "Resultados",
     "resultsTooltip": "Aqui são apresentados os principais resultados da simulação determinística, que assume que as taxas de retorno são constantes.",
     "fireValueRequired": "Valor FIRE Necessário",
@@ -146,5 +148,15 @@
     "successTemplateSaved": "Template \"{templateName}\" salvo com sucesso!",
     "successDataImported": "Dados importados com sucesso!",
     "errorInvalidDataFile": "Arquivo de dados inválido.",
-    "errorReadingDataFile": "Erro ao ler o arquivo de dados."
+    "errorReadingDataFile": "Erro ao ler o arquivo de dados.",
+    "basicDataInfo": "Esta secção abrange os pressupostos fundamentais para a sua projeção FIRE. Defina a sua idade, a taxa de retirada segura desejada e os seus dados financeiros atuais para começar.",
+    "diversifiedDepositsInfo": "Liste aqui os seus investimentos mensais recorrentes. Pode adicionar diferentes tipos de ativos, como ETFs, ações ou PPRs, cada um com a sua taxa de retorno esperada e desvio padrão para simulações de Monte Carlo.",
+    "uniqueFinancialEventsInfo": "Registe aqui eventos financeiros únicos que irão impactar o seu património, como uma herança, um grande bónus, ou a entrada para a compra de uma casa. Podem ser depósitos ou levantamentos.",
+    "recurringFinancialEventsInfo": "Adicione eventos financeiros que ocorrem regularmente durante um determinado período, mas não mensalmente. Por exemplo, um bónus anual, o pagamento de um seguro, ou uma renda de um imóvel.",
+    "variableExpensesInfo": "Esta secção permite-lhe adicionar despesas significativas que não fazem parte do seu orçamento anual base, mas que ocorrem durante um período específico. Por exemplo, a prestação de um carro ou as propinas da universidade de um filho.",
+    "resultsInfo": "Esta secção apresenta os principais resultados da simulação determinística, que assume que as taxas de retorno são constantes ao longo do tempo.",
+    "monteCarloSimulationInfo": "Esta simulação testa a robustez do seu plano contra a volatilidade do mercado. Executa o plano milhares de vezes com retornos variáveis para avaliar a probabilidade de sucesso.",
+    "assetEvolutionInfo": "Este gráfico mostra a projeção do crescimento do seu património ao longo do tempo, tanto em valor nominal (o montante real) como em valor real (ajustado à inflação).",
+    "expenseEvolutionInfo": "Este gráfico mostra como as suas despesas totais (base + variáveis) evoluem ao longo do tempo, permitindo-lhe visualizar quando grandes despesas terminam.",
+    "assetDistributionInfo": "Este gráfico mostra a percentagem que cada um dos seus depósitos mensais representa do total investido, dando-lhe uma visão clara da sua alocação de ativos."
 }

@@ -93,12 +93,19 @@ function simularEvolucaoPatrimonial() {
     const anosDeSimulacao = dadosBasicos.idadeReforma - dadosBasicos.idadeAtual;
     const ANO_MAXIMO_SIMULACAO = Math.max(anosDeSimulacao, 1); // Garante pelo menos 1 ano de simulação
 
-    // 1. Calcular taxas e contribuições
+    // 1. Calcular taxas e contribuições, considerando datas de início/fim
     let totalContribuicaoMensal = 0;
     let somaPonderada = 0;
+    const dataInicioDep = new Date(anoBase, 0, 1); // 1º Jan do ano base
+    const dataFimDep = new Date(anoBase + ANO_MAXIMO_SIMULACAO, 11, 31); // 31 Dez do último ano
+
     depositosDiversificados.forEach(dep => {
-        totalContribuicaoMensal += dep.valorMensal;
-        somaPonderada += dep.valorMensal * (dep.taxaEsperada / 100);
+        const dataInicio = new Date(dep.dataInicio);
+        const dataFim = new Date(dep.dataFim);
+        if (dataInicio <= dataFimDep && dataFim >= dataInicioDep) {
+            totalContribuicaoMensal += dep.valorMensal;
+            somaPonderada += dep.valorMensal * (dep.taxaEsperada / 100);
+        }
     });
     const taxaRetornoNominalAnual = totalContribuicaoMensal > 0 ? somaPonderada / totalContribuicaoMensal : 0.07;
     const taxaRetornoNominalMensal = Math.pow(1 + taxaRetornoNominalAnual, 1 / 12) - 1;
@@ -133,8 +140,17 @@ function simularEvolucaoPatrimonial() {
         // Aplicar juros sobre o valor do mês anterior
         const jurosMensais = valorAtual * taxaRetornoNominalMensal;
 
-        // O fluxo de caixa a ser adicionado ao património são as contribuições explícitas e os eventos
-        const fluxoCaixaMensal = totalContribuicaoMensal + fluxoEventosRecorrentes + fluxoEventosUnicos;
+        // O fluxo de caixa a ser adicionado ao património são as contribuições explícitas (considerando datas) e os eventos
+        let contribuicaoMensalAtual = 0;
+        depositosDiversificados.forEach(dep => {
+            const dataInicio = new Date(dep.dataInicio);
+            const dataFim = new Date(dep.dataFim);
+            const dataMesAtual = new Date(anoCorrente, mesCorrente, 1);
+            if (dataMesAtual >= dataInicio && dataMesAtual <= dataFim) {
+                contribuicaoMensalAtual += dep.valorMensal;
+            }
+        });
+        const fluxoCaixaMensal = contribuicaoMensalAtual + fluxoEventosRecorrentes + fluxoEventosUnicos;
 
         // Atualizar o valor do património
         valorAtual += jurosMensais + fluxoCaixaMensal;
@@ -147,25 +163,25 @@ function simularEvolucaoPatrimonial() {
             valorNominal: valorAtual,
             valorReal: valorAtual / inflacaoAcumulada
         });
-
+    
         // Se for o último mês do ano, armazena o histórico anual
         if (mesCorrente === 11) {
             historicoPatrimonialAnual.push({
-                ano: anoCorrente + 1,
+                ano: anoCorrente,
                 valorNominal: valorAtual,
                 valorReal: valorAtual / inflacaoAcumulada
             });
-
+    
             // Verificar FIRE anualmente
             if (!atingiuFIRE) {
                 const despesasAnuaisFixas = dadosBasicos.despesasAnuais;
                 const despesasAnuaisVariaveis = Math.abs(fluxoVariavelAnual(anoCorrente));
                 const despesasTotaisAno = despesasAnuaisFixas + despesasAnuaisVariaveis;
                 const alvoFIRE = despesasTotaisAno / (dadosBasicos.taxaRetirada / 100);
-
+    
                 if (valorAtual >= alvoFIRE) {
                     atingiuFIRE = true;
-                    anosParaFIRE = (anoCorrente + 1) - anoBase;
+                    anosParaFIRE = anoCorrente - anoBase + 1;
                 }
             }
         }
@@ -219,7 +235,20 @@ function executarSimulacaoUnica(dados) {
     let valorAtual = dadosBasicos.valorInvestido;
     let taxaRetornoNominalAnualPonderada = 0;
 
-    const totalContribuicaoMensalDepositos = depositosDiversificados.reduce((sum, dep) => sum + dep.valorMensal, 0);
+    // Calcular contribuições considerando datas, similar à simulação principal
+    const anosDeSimulacaoMC = dadosBasicos.idadeReforma - dadosBasicos.idadeAtual;
+    const ANO_MAXIMO_SIMULACAO_MC = Math.max(anosDeSimulacaoMC, 1);
+    const dataInicioDepMC = new Date(anoBase, 0, 1);
+    const dataFimDepMC = new Date(anoBase + ANO_MAXIMO_SIMULACAO_MC, 11, 31);
+
+    let totalContribuicaoMensalDepositos = 0;
+    depositosDiversificados.forEach(dep => {
+        const dataInicio = new Date(dep.dataInicio);
+        const dataFim = new Date(dep.dataFim);
+        if (dataInicio <= dataFimDepMC && dataFim >= dataInicioDepMC) {
+            totalContribuicaoMensalDepositos += dep.valorMensal;
+        }
+    });
 
     for (let i = 1; i <= ANO_MAXIMO_SIMULACAO * 12; i++) {
         const anoCorrente = anoBase + Math.floor((i - 1) / 12);
@@ -241,7 +270,17 @@ function executarSimulacaoUnica(dados) {
         const fluxoEventosUnicos = fluxoUnicoMensal(anoCorrente, mesCorrente);
 
         const jurosMensais = valorAtual * taxaRetornoNominalMensal;
-        const fluxoCaixaMensal = totalContribuicaoMensalDepositos + fluxoEventosRecorrentes + fluxoEventosUnicos;
+        // Contribuição atual para o mês, considerando datas
+        let contribuicaoMensalAtualMC = 0;
+        depositosDiversificados.forEach(dep => {
+            const dataInicio = new Date(dep.dataInicio);
+            const dataFim = new Date(dep.dataFim);
+            const dataMesAtual = new Date(anoCorrente, mesCorrente, 1);
+            if (dataMesAtual >= dataInicio && dataMesAtual <= dataFim) {
+                contribuicaoMensalAtualMC += dep.valorMensal;
+            }
+        });
+        const fluxoCaixaMensal = contribuicaoMensalAtualMC + fluxoEventosRecorrentes + fluxoEventosUnicos;
 
         valorAtual += jurosMensais + fluxoCaixaMensal;
     }
@@ -267,7 +306,8 @@ function simularMonteCarlo(numSimulacoes = 2500) {
     const p50 = resultadosFinais[Math.floor(numSimulacoes * 0.50)];
     const p90 = resultadosFinais[Math.floor(numSimulacoes * 0.90)];
 
-    const despesasFinais = (dadosApp.dadosBasicos.despesasAnuais + Math.abs(fluxoVariavelAnual(dadosApp.dadosBasicos.idadeReforma - dadosApp.dadosBasicos.idadeAtual + new Date().getFullYear()))) / (dadosApp.dadosBasicos.taxaRetirada / 100);
+    const anoFinal = dadosApp.dadosBasicos.idadeReforma - dadosApp.dadosBasicos.idadeAtual + new Date().getFullYear();
+    const despesasFinais = (dadosApp.dadosBasicos.despesasAnuais + Math.abs(fluxoVariavelAnual(anoFinal))) / (dadosApp.dadosBasicos.taxaRetirada / 100);
     
     const sucessoSimulacoes = resultadosFinais.filter(r => r >= despesasFinais).length;
     const taxaDeSucesso = (sucessoSimulacoes / numSimulacoes) * 100;
@@ -314,7 +354,9 @@ function simularSequenceOfReturnsRisk(srrDuration, srrReturn) {
         const contribuicaoAnual = totalContribuicaoMensal * 12;
         const fluxoEventosRecorrentes = fluxoRecorrenteAnual(anoCorrente);
         const fluxoEventosUnicos = fluxoUnicoAnual(anoCorrente);
-        const fluxoDespesasVariaveis = fluxoVariavelAnual(anoCorrente);
+        // In accumulation phase, do not subtract variable expenses from portfolio (assume covered by income)
+        // Only include if post-FIRE, but this sim is for pre-retirement stress
+        const fluxoDespesasVariaveis = 0; // Or adjust based on FIRE attainment, but for simplicity, exclude during accumulation
 
         const fluxoCaixaAnual = contribuicaoAnual + fluxoEventosRecorrentes + fluxoEventosUnicos + fluxoDespesasVariaveis;
 
