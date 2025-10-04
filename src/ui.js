@@ -314,6 +314,52 @@ function hideLoader() {
     document.getElementById('loader').classList.add('hidden');
 }
 
+function criarTooltip(texto) {
+    const container = document.createElement('div');
+    container.className = 'tooltip-container';
+
+    const icon = document.createElement('span');
+    icon.className = 'tooltip-icon';
+    icon.textContent = 'i';
+
+    const text = document.createElement('div');
+    text.className = 'tooltip-text';
+    text.textContent = texto;
+
+    container.appendChild(icon);
+    container.appendChild(text);
+
+    return container;
+}
+
+function adicionarTooltips() {
+    // Remove tooltips existentes para evitar duplicados ao trocar de idioma
+    document.querySelectorAll('.tooltip-container').forEach(tooltip => tooltip.remove());
+
+    const sections = {
+        'basicData': 'basicDataInfo',
+        'diversifiedDeposits': 'diversifiedDepositsInfo',
+        'uniqueFinancialEvents': 'uniqueFinancialEventsInfo',
+        'recurringFinancialEvents': 'recurringFinancialEventsInfo',
+        'variableExpenses': 'variableExpensesInfo',
+        'results': 'resultsInfo',
+        'monteCarloSimulationResults': 'monteCarloSimulationInfo',
+        'assetEvolution': 'assetEvolutionInfo',
+        'expenseEvolution': 'expenseEvolutionInfo',
+        'assetDistribution': 'assetDistributionInfo'
+    };
+
+    for (const sectionKey in sections) {
+        const header = document.querySelector(`h2[data-i18n-key="${sectionKey}"]`);
+        if (header) {
+            const tooltipKey = sections[sectionKey];
+            const tooltipText = translate(tooltipKey);
+            const tooltip = criarTooltip(tooltipText);
+            header.appendChild(tooltip);
+        }
+    }
+}
+
 export {
     popularDadosIniciais,
     showLoader,
@@ -338,5 +384,7 @@ export {
     preencherFormularioDespesa,
     getDadosFormularioDespesa,
     atualizarTabelaDespesasVariaveis,
-    mostrarMensagem
+    mostrarMensagem,
+    criarTooltip,
+    adicionarTooltips
 };

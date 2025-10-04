@@ -2,7 +2,9 @@ import {
     atualizarTabelaDepositos,
     atualizarTabelaEventosUnicos,
     atualizarTabelaEventosRecorrentes,
-    atualizarTabelaDespesasVariaveis
+    atualizarTabelaDespesasVariaveis,
+    criarTooltip,
+    adicionarTooltips
 } from './ui.js';
 
 let translations = {};
@@ -30,6 +32,7 @@ function setLanguage(lang) {
     loadTranslations(lang).then(() => {
         translateUI();
         updateLangSelector(lang);
+        adicionarTooltips();
         // Re-render tables to apply translations
         atualizarTabelaDepositos();
         atualizarTabelaEventosUnicos();

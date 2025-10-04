@@ -28,7 +28,8 @@ import {
     getDadosFormularioDespesa,
     atualizarTabelaDespesasVariaveis,
     showLoader,
-    hideLoader
+    hideLoader,
+    adicionarTooltips
 } from './ui.js';
 
 import { simularEvolucaoPatrimonial, simularMonteCarlo, simularSequenceOfReturnsRisk } from './calculator.js';
@@ -408,7 +409,11 @@ function configurarEventListeners() {
     
     mainContainer.addEventListener('click', handleTableActions);
 
-    document.getElementById('formDadosBasicos').addEventListener('change', atualizarDadosBasicos);
+    document.getElementById('formDadosBasicos').addEventListener('change', () => {
+        atualizarDadosBasicos();
+        calcularResultados();
+        calcularResultadosMonteCarlo();
+    });
     document.getElementById('btnCalcular').addEventListener('click', calcularResultados);
     document.getElementById('btnCalcularMonteCarlo').addEventListener('click', calcularResultadosMonteCarlo);
     document.getElementById('btnDownloadPDF').addEventListener('click', gerarPDF);
@@ -505,6 +510,7 @@ async function inicializarApp() {
         await calcularResultados();
         await calcularResultadosMonteCarlo();
         translateUI();
+        adicionarTooltips();
     } finally {
         hideLoader();
     }
