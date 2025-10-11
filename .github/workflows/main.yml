@@ -17,11 +17,15 @@ jobs:
         with:
           node-version: '18'
 
-      # Adicione aqui passos para instalar dependências e rodar testes se necessário
-      # Exemplo:
+      # Se você tivesse dependências de desenvolvimento (ex: para testes ou linting)
       # - name: Install dependencies
       #   run: npm install
-      #
+
+      # Exemplo de passo para rodar um linter e garantir a qualidade do código
+      # - name: Lint code
+      #   run: npm run lint
+
+      # Exemplo de passo para rodar testes automatizados
       # - name: Run tests
       #   run: npm test
 
