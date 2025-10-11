@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora FIRE</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <div id="loader" class="loader-overlay hidden">
+        <div class="loader"></div>
+    </div>
+    <header class="header">
+        <div class="container">
+            <h1 data-i18n-key="fireCalculator">Calculadora FIRE</h1>
+            <p data-i18n-key="financialIndependence">Independência Financeira, Aposentadoria Antecipada</p>
+            <div class="language-switcher">
+                <button id="lang-selector" class="lang-selector">
+                    <span id="current-lang-flag">🇵🇹</span> <span id="current-lang-text">PT</span>
+                </button>
+                <div id="lang-dropdown" class="lang-dropdown hidden">
+                    <a href="#" class="lang-option" data-lang="pt">🇵🇹 Português</a>
+                    <a href="#" class="lang-option" data-lang="en">🇬🇧 English</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="card section">
+            <div class="card__header">
+                <h2 data-i18n-key="basicData">Dados Básicos</h2>
+            </div>
+            <div class="card__body">
+                <form id="formDadosBasicos">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="taxaRetirada" class="form-label" data-i18n-key="safeWithdrawalRate">Taxa de Retirada Segura (%)</label>
+                            <div class="slider-container">
+                                <input type="range" id="taxaRetirada" name="taxaRetirada" min="2" max="6" step="0.1" value="4" class="slider">
+                                <span id="taxaRetiradaValue">4%</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inflacaoAnual" class="form-label" data-i18n-key="estimatedAnnualInflation">Inflação Anual Estimada (%)</label>
+                            <input type="number" id="inflacaoAnual" name="inflacaoAnual" value="2" min="0" max="10" step="0.1" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="idadeAtual" class="form-label" data-i18n-key="currentAge">Idade Atual</label>
+                            <input type="number" id="idadeAtual" name="idadeAtual" value="30" min="18" max="90" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="idadeReforma" class="form-label" data-i18n-key="simulateUntilAge">Simular até à Idade</label>
+                            <input type="number" id="idadeReforma" name="idadeReforma" value="65" min="18" max="100" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="rendimentoAnual" class="form-label" data-i18n-key="annualIncome">Rendimento Anual (€)</label>
+                            <input type="number" id="rendimentoAnual" name="rendimentoAnual" value="36000" min="0" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="despesasAnuais" class="form-label" data-i18n-key="annualExpenses">Despesas Anuais (€)</label>
+                            <input type="number" id="despesasAnuais" name="despesasAnuais" value="24000" min="0" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="valorInvestido" class="form-label" data-i18n-key="alreadyInvestedValue">Valor Já Investido (€)</label>
+                            <input type="number" id="valorInvestido" name="valorInvestido" value="50000" min="0" class="form-control">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section class="card section">
+            <div class="card__header">
+                <h2 data-i18n-key="diversifiedDeposits">Depósitos Diversificados</h2>
+            </div>
+            <div class="card__body">
+                <div class="table-responsive">
+                    <table class="table" id="tabelaDepositos">
+                        <thead>
+                            <tr>
+                                <th data-i18n-key="investmentType">Tipo Investimento</th>
+                                <th data-i18n-key="monthlyValue">Valor Mensal (€)</th>
+                                <th data-i18n-key="expectedRate">Taxa Esperada (%)</th>
+                                <th data-i18n-key="standardDeviation">Desvio Padrão (%)</th>
+                                <th data-i18n-key="startDate">Data Início</th>
+                                <th data-i18n-key="endDate">Data Fim</th>
+                                <th data-i18n-key="description">Descrição</th>
+                                <th data-i18n-key="actions">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Os depósitos serão adicionados aqui -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="form-row mt-16" style="align-items: center;">
+                    <div class="form-group" style="flex-grow: 0;">
+                        <label for="investmentTemplate" class="sr-only" data-i18n-key="investmentTemplate">Template de Investimento</label>
+                        <select id="investmentTemplate" class="form-control">
+                            <option value="" data-i18n-key="chooseTemplate">Escolher um template...</option>
+                            <optgroup label="Padrão" data-i18n-key="default">
+                                <option value="conservador" data-i18n-key="conservative">Conservador</option>
+                                <option value="moderado" data-i18n-key="moderate">Moderado</option>
+                                <option value="agressivo" data-i18n-key="aggressive">Agressivo</option>
+                            </optgroup>
+                            <optgroup label="Personalizados" id="customTemplatesOptgroup" hidden data-i18n-key="custom"></optgroup>
+                        </select>
+                    </div>
+                    <button type="button" id="btnSalvarTemplate" class="btn btn--secondary" data-i18n-key="saveAsTemplate">Salvar como Template</button>
+                    <button type="button" id="btnAdicionarDeposito" class="btn btn--primary" data-i18n-key="addDeposit">Adicionar Depósito</button>
+                    <div class="taxa-info">
+                        <span data-i18n-key="weightedReturnRate">Taxa de Retorno Ponderada: </span>
+                        <strong id="taxaRetornoPonderada">0%</strong>
+                    </div>
+                </div>
+                <div id="formNovoDeposito" class="form-popup hidden">
+                    <form>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="tipoInvestimento" class="form-label" data-i18n-key="investmentType">Tipo de Investimento</label>
+                                <input type="text" id="tipoInvestimento" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="valorMensal" class="form-label" data-i18n-key="monthlyValue">Valor Mensal (€)</label>
+                                <input type="number" id="valorMensal" min="0" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="taxaEsperada" class="form-label" data-i18n-key="expectedRate">Taxa Esperada (%)</label>
+                                <input type="number" id="taxaEsperada" min="0" max="20" step="0.1" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="desvioPadrao" class="form-label" data-i18n-key="standardDeviation">Desvio Padrão (%)</label>
+                                <input type="number" id="desvioPadrao" min="0" max="50" step="0.1" class="form-control" value="15" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="dataInicio" class="form-label" data-i18n-key="startDate">Data Início</label>
+                                <input type="date" id="dataInicio" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="dataFim" class="form-label" data-i18n-key="endDate">Data Fim</label>
+                                <input type="date" id="dataFim" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="descricaoInvestimento" class="form-label" data-i18n-key="description">Descrição</label>
+                            <input type="text" id="descricaoInvestimento" class="form-control">
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="btnSalvarDeposito" class="btn btn--primary" data-i18n-key="save">Salvar</button>
+                            <button type="button" id="btnCancelarDeposito" class="btn btn--secondary" data-i18n-key="cancel">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section class="card section">
+            <div class="card__header">
+                <h2 data-i18n-key="uniqueFinancialEvents">Eventos Financeiros Únicos</h2>
+            </div>
+            <div class="card__body">
+                <div class="table-responsive">
+                    <table class="table" id="tabelaEventosUnicos">
+                        <thead>
+                            <tr>
+                                <th data-i18n-key="year">Ano</th>
+                                <th data-i18n-key="month">Mês</th>
+                                <th data-i18n-key="type">Tipo</th>
+                                <th data-i18n-key="value">Valor (€)</th>
+                                <th data-i18n-key="description">Descrição</th>
+                                <th data-i18n-key="actions">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Os eventos únicos serão adicionados aqui -->
+                        </tbody>
+                    </table>
+                </div>
+                <button type="button" id="btnAdicionarEventoUnico" class="btn btn--primary mt-16" data-i18n-key="addEvent">Adicionar Evento</button>
+
+                <div id="formNovoEventoUnico" class="form-popup hidden">
+                    <form>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="anoEvento" class="form-label" data-i18n-key="year">Ano</label>
+                                <input type="number" id="anoEvento" min="2023" class="form-control" required>
+                            </div>
+                             <div class="form-group">
+                                <label for="mesEvento" class="form-label" data-i18n-key="month">Mês</label>
+                                <select id="mesEvento" class="form-control">
+                                    <option value="1" data-i18n-key="january">Janeiro</option>
+                                    <option value="2" data-i18n-key="february">Fevereiro</option>
+                                    <option value="3" data-i18n-key="march">Março</option>
+                                    <option value="4" data-i18n-key="april">Abril</option>
+                                    <option value="5" data-i18n-key="may">Maio</option>
+                                    <option value="6" data-i18n-key="june">Junho</option>
+                                    <option value="7" data-i18n-key="july">Julho</option>
+                                    <option value="8" data-i18n-key="august">Agosto</option>
+                                    <option value="9" data-i18n-key="september">Setembro</option>
+                                    <option value="10" data-i18n-key="october">Outubro</option>
+                                    <option value="11" data-i18n-key="november">Novembro</option>
+                                    <option value="12" data-i18n-key="december">Dezembro</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="tipoEvento" class="form-label" data-i18n-key="type">Tipo</label>
+                                <select id="tipoEvento" class="form-control">
+                                    <option value="Depósito" data-i18n-key="deposit">Depósito</option>
+                                    <option value="Levantamento" data-i18n-key="withdrawal">Levantamento</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="valorEvento" class="form-label" data-i18n-key="value">Valor (€)</label>
+                                <input type="number" id="valorEvento" min="0" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="descricaoEvento" class="form-label" data-i18n-key="description">Descrição</label>
+                                <input type="text" id="descricaoEvento" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="btnSalvarEventoUnico" class="btn btn--primary" data-i18n-key="save">Salvar</button>
+                            <button type="button" id="btnCancelarEventoUnico" class="btn btn--secondary" data-i18n-key="cancel">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section class="card section">
+            <div class="card__header">
+                <h2 data-i18n-key="recurringFinancialEvents">Eventos Financeiros Recorrentes</h2>
+            </div>
+            <div class="card__body">
+                <div class="table-responsive">
+                    <table class="table" id="tabelaEventosRecorrentes">
+                        <thead>
+                            <tr>
+                                <th data-i18n-key="startEndYear">Ano Início-Fim</th>
+                                <th data-i18n-key="type">Tipo</th>
+                                <th data-i18n-key="periodicity">Periodicidade</th>
+                                <th data-i18n-key="valuePerPeriod">Valor/Período (€)</th>
+                                <th data-i18n-key="description">Descrição</th>
+                                <th data-i18n-key="actions">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Os eventos recorrentes serão adicionados aqui -->
+                        </tbody>
+                    </table>
+                </div>
+                <button type="button" id="btnAdicionarEventoRecorrente" class="btn btn--primary mt-16" data-i18n-key="addEvent">Adicionar Evento</button>
+
+                <div id="formNovoEventoRecorrente" class="form-popup hidden">
+                    <form>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="anoInicioEvento" class="form-label" data-i18n-key="startYear">Ano Início</label>
+                                <input type="number" id="anoInicioEvento" min="2023" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="anoFimEvento" class="form-label" data-i18n-key="endYear">Ano Fim</label>
+                                <input type="number" id="anoFimEvento" min="2023" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="tipoEventoRecorrente" class="form-label" data-i18n-key="type">Tipo</label>
+                                <select id="tipoEventoRecorrente" class="form-control">
+                                    <option value="Depósito" selected data-i18n-key="deposit">Depósito</option>
+                                    <option value="Levantamento" data-i18n-key="withdrawal">Levantamento</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="periodicidadeEvento" class="form-label" data-i18n-key="periodicity">Periodicidade</label>
+                                <select id="periodicidadeEvento" class="form-control">
+                                    <option value="Mensal" data-i18n-key="monthly">Mensal</option>
+                                    <option value="Trimestral" data-i18n-key="quarterly">Trimestral</option>
+                                    <option value="Semestral" data-i18n-key="semiAnnually">Semestral</option>
+                                    <option value="Anual" data-i18n-key="annually">Anual</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="valorPeriodoEvento" class="form-label" data-i18n-key="valuePerPeriod">Valor/Período (€)</label>
+                                <input type="number" id="valorPeriodoEvento" min="0" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="descricaoEventoRecorrente" class="form-label" data-i18n-key="description">Descrição</label>
+                            <input type="text" id="descricaoEventoRecorrente" class="form-control">
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="btnSalvarEventoRecorrente" class="btn btn--primary" data-i18n-key="save">Salvar</button>
+                            <button type="button" id="btnCancelarEventoRecorrente" class="btn btn--secondary" data-i18n-key="cancel">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section class="card section">
+            <div class="card__header">
+                <h2 data-i18n-key="variableExpenses">Despesas Variáveis</h2>
+            </div>
+            <div class="card__body">
+                <div class="table-responsive">
+                    <table class="table" id="tabelaDespesasVariaveis">
+                        <thead>
+                            <tr>
+                                <th data-i18n-key="description">Descrição</th>
+                                <th data-i18n-key="monthlyValue">Valor Mensal (€)</th>
+                                <th data-i18n-key="startYear">Ano Início</th>
+                                <th data-i18n-key="endYear">Ano Fim</th>
+                                <th data-i18n-key="actions">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- As despesas variáveis serão adicionadas aqui -->
+                        </tbody>
+                    </table>
+                </div>
+                <button type="button" id="btnAdicionarDespesa" class="btn btn--primary mt-16" data-i18n-key="addExpense">Adicionar Despesa</button>
+
+                <div id="formNovaDespesa" class="form-popup hidden">
+                    <form>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="descricaoDespesa" class="form-label" data-i18n-key="description">Descrição</label>
+                                <input type="text" id="descricaoDespesa" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="valorMensalDespesa" class="form-label" data-i18n-key="monthlyValueExpense">Valor Mensal (€)</label>
+                                <input type="number" id="valorMensalDespesa" min="0" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="anoInicioDespesa" class="form-label" data-i18n-key="startYear">Ano Início</label>
+                                <input type="number" id="anoInicioDespesa" min="2023" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="anoFimDespesa" class="form-label" data-i18n-key="endYear">Ano Fim</label>
+                                <input type="number" id="anoFimDespesa" min="2023" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="btnSalvarDespesa" class="btn btn--primary" data-i18n-key="save">Salvar</button>
+                            <button type="button" id="btnCancelarDespesa" class="btn btn--secondary" data-i18n-key="cancel">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <section class="card section">
+            <div class="card__header">
+                <h2 data-i18n-key="results">Resultados</h2>
+            </div>
+            <div class="card__body">
+                <div class="resultados-grid">
+                    <div class="resultado-item">
+                        <div class="resultado-label" data-i18n-key="fireValueRequired">Valor FIRE Necessário</div>
+                        <div class="resultado-value" id="valorFIRE">€0</div>
+                    </div>
+                    <div class="resultado-item">
+                        <div class="resultado-label" data-i18n-key="fireAge">Idade FIRE</div>
+                        <div class="resultado-value" id="idadeFIRE">0</div>
+                    </div>
+                    <div class="resultado-item">
+                        <div class="resultado-label" data-i18n-key="effectiveNominalReturnRate">Taxa Retorno Efetiva Nominal</div>
+                        <div class="resultado-value" id="taxaRetornoNominal">0%</div>
+                    </div>
+                    <div class="resultado-item">
+                        <div class="resultado-label" data-i18n-key="effectiveRealReturnRate">Taxa Retorno Efetiva Real</div>
+                        <div class="resultado-value" id="taxaRetornoReal">0%</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="resultadosMonteCarlo" class="card section hidden">
+            <div class="card__header">
+                <h2 data-i18n-key="monteCarloSimulationResults">Resultados da Simulação de Monte Carlo</h2>
+            </div>
+            <div class="card__body">
+                <div class="form-row" style="margin-bottom: 24px;">
+                    <div class="form-group" style="max-width: 250px;">
+                        <label for="mcNumSimulacoes" class="form-label" data-i18n-key="numberOfSimulations">Número de Simulações</label>
+                        <input type="number" id="mcNumSimulacoes" class="form-control" value="2500" min="100" max="10000" step="100">
+                    </div>
+                </div>
+                <div class="resultados-grid">
+                    <div class="resultado-item">
+                        <div class="resultado-label" data-i18n-key="pessimisticAssets">Património (Pessimista - P10)</div>
+                        <div class="resultado-value" id="mcP10">€0</div>
+                    </div>
+                    <div class="resultado-item">
+                        <div class="resultado-label" data-i18n-key="medianAssets">Património (Mediano - P50)</div>
+                        <div class="resultado-value" id="mcP50">€0</div>
+                    </div>
+                    <div class="resultado-item">
+                        <div class="resultado-label" data-i18n-key="optimisticAssets">Património (Otimista - P90)</div>
+                        <div class="resultado-value" id="mcP90">€0</div>
+                    </div>
+                    <div class="resultado-item">
+                        <div class="resultado-label" data-i18n-key="successRate">Taxa de Sucesso</div>
+                        <div class="resultado-value" id="mcTaxaSucesso">0%</div>
+                    </div>
+                </div>
+                <div class="chart-container" style="height: 400px; width: 100%; margin-top: 24px;">
+                    <canvas id="chartMonteCarloDistribution"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="analiseSensibilidade" class="card section hidden">
+            <div class="card__header">
+                <h2 data-i18n-key="sensitivityAnalysis">Análise de Sensibilidade</h2>
+   </div>
+   <div class="card__body">
+                <p data-i18n-key="sensitivityAnalysisDescription">Esta análise mostra como a sua Idade FIRE pode variar com pequenas alterações nos seus pressupostos de retorno e inflação.</p>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th data-i18n-key="scenario">Cenário</th>
+                                <th data-i18n-key="resultingFireAge">Idade FIRE Resultante</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaAnaliseSensibilidade">
+                            <!-- Os resultados da análise serão inseridos aqui -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+<section id="sequenceOfReturnsRisk" class="card section hidden">
+            <div class="card__header">
+                <h2 data-i18n-key="sequenceOfReturnsRiskAnalysis">Análise de Risco de Sequência de Retornos</h2>
+            </div>
+            <div class="card__body">
+                <div class="form-row" style="margin-bottom: 24px;">
+                    <div class="form-group">
+                        <label for="srrDuration" class="form-label" data-i18n-key="scenarioDuration">Duração do Cenário (Anos)</label>
+                        <input type="number" id="srrDuration" class="form-control" value="5" min="1" max="20">
+                    </div>
+                    <div class="form-group">
+                        <label for="srrReturn" class="form-label" data-i18n-key="annualReturnInScenario">Retorno Anual no Cenário (%)</label>
+                        <input type="number" id="srrReturn" class="form-control" value="-10" max="100">
+                    </div>
+                </div>
+                <button type="button" id="btnSimularSRR" class="btn btn--primary" data-i18n-key="simulateSequenceRisk">Simular Risco de Sequência</button>
+                <div class="chart-container" style="height: 400px; width: 100%; margin-top: 24px;">
+                    <canvas id="chartSequenceOfReturns"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <div class="charts-container">
+            <section class="card section">
+                <div class="card__header">
+                    <h2 data-i18n-key="assetEvolution">Evolução Patrimonial</h2>
+                </div>
+<div class="card__body">
+                    <div class="chart-controls" style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                        <div class="btn-group" role="toolbar" aria-label="Filtrar período do gráfico" data-i18n-aria-label="filterChartPeriod">
+                            <button type="button" class="btn btn--sm btn--outline" data-period="1M">1M</button>
+                            <button type="button" class="btn btn--sm btn--outline" data-period="6M">6M</button>
+                            <button type="button" class="btn btn--sm btn--outline" data-period="YTD">YTD</button>
+                            <button type="button" class="btn btn--sm btn--outline" data-period="1A">1A</button>
+                            <button type="button" class="btn btn--sm btn--outline active" data-period="ALL" data-i18n-key="all">Tudo</button>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="chart-granularity" class="sr-only" data-i18n-key="granularity">Granularidade</label>
+                            <select id="chart-granularity" class="form-control">
+                                <option value="anual" data-i18n-key="annual">Anual</option>
+                                <option value="mensal" data-i18n-key="monthly">Mensal</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartEvolucaoPatrimonial"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card section">
+                <div class="card__header">
+                    <h2 data-i18n-key="expenseEvolution">Evolução das Despesas</h2>
+                </div>
+                <div class="card__body">
+                    <!-- Contentor com altura fixa para resolver o problema do gráfico -->
+                    <div class="chart-container" style="height: 400px; width: 100%;">
+                        <canvas id="chartDespesasVariaveis"></canvas>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <section class="card section">
+            <div class="card__header">
+                <h2 data-i18n-key="assetDistribution">Distribuição de Ativos</h2>
+            </div>
+            <div class="card__body">
+                <div class="chart-container" style="height: 400px; width: 100%;">
+                    <canvas id="chartAssetAllocation"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <div class="actions-container">
+            <button type="button" id="btnCalcular" class="btn btn--primary btn--lg" data-i18n-key="calculateProjection">Calcular Projeção</button>
+            <button type="button" id="btnCalcularMonteCarlo" class="btn btn--primary btn--lg" data-i18n-key="calculateMonteCarlo">Calcular Monte Carlo</button>
+            <button type="button" id="btnDownloadPDF" class="btn btn--secondary btn--lg" data-i18n-key="downloadPDFReport">Baixar Relatório PDF</button>
+            <button type="button" id="btnExportarDados" class="btn btn--outline btn--lg" data-i18n-key="exportData">Exportar Dados</button>
+            <button type="button" id="btnImportarDados" class="btn btn--outline btn--lg" data-i18n-key="importData">Importar Dados</button>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p data-i18n-key="footerText">2025 Calculadora FIRE by NearDaniel</p>
+        </div>
+    </footer>
+
+    <script type="module" src="./src/app.js"></script>
+</body>
+</html>
