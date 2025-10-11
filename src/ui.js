@@ -1,4 +1,4 @@
-import { dadosApp, estadoEdicao, salvarDadosNoLocalStorage } from './state.js';
+import { dadosApp, estadoEdicao } from './state.js';
 import { translate } from './i18n.js';
 
 // Funções de UI para Depósitos

@@ -42,15 +42,6 @@ function fluxoRecorrenteAnual(ano) {
 
 // --- Funções de cálculo mensal (para granularidade) ---
 
-function fluxoVariavelMensal(ano) {
-    return (dadosApp.despesasVariaveis ?? []).reduce((total, despesa) => {
-        if (ano >= despesa.anoInicio && ano <= despesa.anoFim) {
-            return total - despesa.valorMensal; // Saída é negativa
-        }
-        return total;
-    }, 0);
-}
-
 function fluxoUnicoMensal(ano, mes) { // mes is 0-11
     return (dadosApp.eventosFinanceiros?.unicos ?? []).reduce((total, evento) => {
         // O mês do evento (1-12) deve corresponder ao mês da simulação (0-11)

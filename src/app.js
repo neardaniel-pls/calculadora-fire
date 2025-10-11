@@ -35,7 +35,7 @@ import {
 import { simularEvolucaoPatrimonial, simularMonteCarlo, simularSequenceOfReturnsRisk } from './calculator.js';
 import { atualizarGraficos, criarGraficoMonteCarloDistribution, criarGraficoSequenceOfReturns } from './charts.js';
 import { gerarPDF } from './pdf.js';
-import { setLanguage, translate, translateUI } from './i18n.js';
+import { setLanguage, translateUI } from './i18n.js';
 
 // --- Funções de Lógica de Negócio (Handlers) ---
 

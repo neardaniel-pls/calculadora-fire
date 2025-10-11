@@ -259,7 +259,6 @@ function atualizarGraficos(resultadosSimulacao) {
 
     const hoje = new Date();
     const anoAtual = hoje.getFullYear();
-    const mesAtual = hoje.getMonth(); // 0-11
 
     let dataLimiteInferior = null;
 

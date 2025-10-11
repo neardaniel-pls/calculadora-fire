@@ -3,7 +3,6 @@ import {
     atualizarTabelaEventosUnicos,
     atualizarTabelaEventosRecorrentes,
     atualizarTabelaDespesasVariaveis,
-    criarTooltip,
     adicionarTooltips
 } from './ui.js';
 
